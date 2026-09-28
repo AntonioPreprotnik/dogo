@@ -43,6 +43,39 @@ defmodule DogoWeb.GeoJSON do
   end
 
   @doc """
+  Sažete ćelije kao GeoJSON.
+
+  Svojstvo se zove `point_count` jer MapLibre tako zove broj u klasteru —
+  isti stil onda radi i za klijentske i za serverske klastere.
+  """
+  @spec cluster_collection([%{lon: float(), lat: float(), count: pos_integer()}]) :: map()
+  def cluster_collection(clusters) do
+    %{
+      type: "FeatureCollection",
+      features: Enum.map(clusters, &cluster_feature/1)
+    }
+  end
+
+  defp cluster_feature(%{lon: lon, lat: lat, count: count}) do
+    %{
+      type: "Feature",
+      geometry: %{type: "Point", coordinates: [lon, lat]},
+      properties: %{
+        point_count: count,
+        point_count_abbreviated: abbreviate(count)
+      }
+    }
+  end
+
+  # MapLibre sam skracuje brojeve u klijentskim klasterima; za serverske to
+  # radimo ovdje, da oznake izgledaju isto.
+  defp abbreviate(count) when count < 1_000, do: to_string(count)
+
+  defp abbreviate(count) do
+    :erlang.float_to_binary(count / 1_000, decimals: 1) <> "k"
+  end
+
+  @doc """
   Boje za MapLibre `match` izraz: ravna lista `status, boja, status, boja, ...`.
 
   MapLibre očekuje baš takav oblik, pa ga gradimo ovdje umjesto u JS-u — jedan

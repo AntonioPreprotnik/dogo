@@ -42,7 +42,8 @@ defmodule DogoWeb.PlaceSearchTest do
     test "i kad preglednik uopće ne nudi lokaciju", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/")
 
-      assert render_hook(view, "geolocation_error", %{"reason" => "unavailable"}) =~ "Upiši mjesto"
+      assert render_hook(view, "geolocation_error", %{"reason" => "unavailable"}) =~
+               "Upiši mjesto"
     end
 
     test "ne pojavljuje se ako je lokacija dobivena", %{conn: conn} do

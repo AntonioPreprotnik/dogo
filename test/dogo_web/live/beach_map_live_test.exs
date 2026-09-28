@@ -224,9 +224,9 @@ defmodule DogoWeb.BeachMapLiveTest do
   end
 
   describe "previše plaža za zoom" do
-    test "iznad tvrdog limita upozorava i reže rezultat", %{conn: conn} do
-      # Stvarno prekoračimo limit od 500, umjesto da ga smanjujemo za test —
-      # inače ne bismo testirali prag koji aplikacija stvarno koristi.
+    test "iznad tvrdog limita server šalje sažetak, ne odrezan skup", %{conn: conn} do
+      # Stvarno prekoracimo limit od 500, umjesto da ga smanjujemo za test —
+      # inace ne bismo testirali prag koji aplikacija stvarno koristi.
       over_limit = Beaches.bbox_limit() + 1
       now = DateTime.utc_now(:second)
 
@@ -251,11 +251,58 @@ defmodule DogoWeb.BeachMapLiveTest do
 
       html = render_hook(view, "bounds_changed", @bounds)
 
-      assert html =~ "Previše plaža za ovaj zoom"
-      assert html =~ "prikazano prvih #{Beaches.bbox_limit()}"
+      # Broj je stvaran, ne odrezan na 500.
+      assert html =~ "Vidljivo: #{over_limit}"
+      assert html =~ "grupirano, zumiraj"
 
-      assert_push_event(view, "beaches", %{geojson: geojson})
-      assert length(geojson.features) == Beaches.bbox_limit()
+      assert_push_event(view, "clusters", %{geojson: geojson})
+      assert geojson.type == "FeatureCollection"
+
+      # Zbroj klastera mora odgovarati stvarnom broju plaza.
+      total = Enum.sum_by(geojson.features, & &1.properties.point_count)
+      assert total == over_limit
+
+      # Pojedinacne plaze se u tom slucaju ne salju.
+      refute_push_event(view, "beaches", %{})
+    end
+
+    test "ispod limita se šalju pojedinačne plaže", %{conn: conn} do
+      beach_fixture(%{osm_id: "way/one", geom: point(16.4453, 43.5041)})
+
+      {:ok, view, _html} = live(conn, ~p"/")
+
+      assert render_hook(view, "bounds_changed", @bounds) =~ "Vidljivo: 1"
+
+      assert_push_event(view, "beaches", %{geojson: %{features: [_]}})
+      refute_push_event(view, "clusters", %{})
+    end
+
+    test "lista i dalje pokazuje najbliže plaže", %{conn: conn} do
+      now = DateTime.utc_now(:second)
+
+      rows =
+        for i <- 1..(Beaches.bbox_limit() + 1) do
+          %{
+            osm_id: "way/bulk-#{i}",
+            name: "Plaža #{i}",
+            geom: point(16.41 + rem(i, 80) / 10_000, 43.49 + div(i, 80) / 10_000),
+            surface: :pebble,
+            dog_status: :unknown,
+            dog_status_source: :generated,
+            amenities: %{},
+            inserted_at: now,
+            updated_at: now
+          }
+        end
+
+      Repo.insert_all(Beaches.Beach, rows)
+
+      {:ok, view, _html} = live(conn, ~p"/")
+      render_hook(view, "bounds_changed", @bounds)
+
+      assert has_element?(view, ~s([data-role="beach-list-item"]))
+      # Udaljenosti se racunaju i kad se karti salju klasteri.
+      assert has_element?(view, ~s([data-role="beach-list-item"] [data-role="distance"]))
     end
   end
 

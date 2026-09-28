@@ -8,7 +8,10 @@ const TILE_ERROR_GRACE_MS = 2500
 const BOUNDS_FALLBACK_MS = 4000
 const USER_ZOOM = 12
 const SOURCE_ID = "beaches"
+const CLUSTER_SOURCE_ID = "beach-clusters"
 const LAYER_ID = "beaches-circles"
+const CLUSTER_LAYERS = ["beaches-cluster", "server-cluster"]
+const EMPTY = {type: "FeatureCollection", features: []}
 
 const escapeHtml = (value) =>
   String(value).replace(/[&<>"']/g, (c) =>
@@ -36,10 +39,18 @@ export default {
     this.map.addControl(new maplibregl.ScaleControl({unit: "metric"}), "bottom-left")
 
     this.map.on("load", () => {
+      // Ispod praga server salje pojedinacne plaze i MapLibre ih sam klasterira.
       this.map.addSource(SOURCE_ID, {
         type: "geojson",
-        data: {type: "FeatureCollection", features: []}
+        data: EMPTY,
+        cluster: true,
+        clusterMaxZoom: 13,
+        clusterRadius: 48
       })
+
+      // Iznad praga server salje vec agregirane celije. Klijent ih ne smije
+      // sam klasterirati — broj u njima je vec konacan.
+      this.map.addSource(CLUSTER_SOURCE_ID, {type: "geojson", data: EMPTY})
 
       // Boju odreduje sam MapLibre iz svojstva dog_status, pa se pri
       // osvjezavanju podataka salje samo GeoJSON, bez ponovnog stila.
@@ -47,6 +58,7 @@ export default {
         id: LAYER_ID,
         type: "circle",
         source: SOURCE_ID,
+        filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 7, 16, 10],
           "circle-color": ["match", ["get", "dog_status"], ...config.colors, config.fallbackColor],
@@ -55,7 +67,11 @@ export default {
         }
       })
 
+      this.addClusterLayers("beaches-cluster", SOURCE_ID, ["has", "point_count"])
+      this.addClusterLayers("server-cluster", CLUSTER_SOURCE_ID, ["has", "point_count"])
+
       this.bindPopup()
+      this.bindClusterZoom()
       this.pushBounds()
     })
 
@@ -64,8 +80,13 @@ export default {
     this.map.on("moveend", () => this.scheduleBoundsPush())
 
     this.handleEvent("beaches", ({geojson}) => {
-      const source = this.map.getSource(SOURCE_ID)
-      if (source) source.setData(geojson)
+      this.setData(SOURCE_ID, geojson)
+      this.setData(CLUSTER_SOURCE_ID, EMPTY)
+    })
+
+    this.handleEvent("clusters", ({geojson}) => {
+      this.setData(CLUSTER_SOURCE_ID, geojson)
+      this.setData(SOURCE_ID, EMPTY)
     })
 
     this.handleEvent("fly_to", ({lon, lat, zoom}) => {
@@ -167,6 +188,78 @@ export default {
       .addTo(this.map)
   },
 
+  setData(sourceId, geojson) {
+    const source = this.map.getSource(sourceId)
+    if (source) source.setData(geojson)
+  },
+
+  // Klaster je krug s brojem. Isti izgled za oba izvora, da korisnik ne vidi
+  // razliku izmedu klijentskog i serverskog klasteriranja.
+  addClusterLayers(id, sourceId, filter) {
+    this.map.addLayer({
+      id: id,
+      type: "circle",
+      source: sourceId,
+      filter: filter,
+      paint: {
+        "circle-color": "#1e293b",
+        "circle-opacity": 0.85,
+        "circle-stroke-width": 2,
+        "circle-stroke-color": "#ffffff",
+        "circle-radius": [
+          "step",
+          ["get", "point_count"],
+          14,
+          10, 18,
+          50, 22,
+          200, 28
+        ]
+      }
+    })
+
+    this.map.addLayer({
+      id: `${id}-count`,
+      type: "symbol",
+      source: sourceId,
+      filter: filter,
+      layout: {
+        "text-field": ["get", "point_count_abbreviated"],
+        "text-font": ["Noto Sans Bold"],
+        "text-size": 12
+      },
+      paint: {"text-color": "#ffffff"}
+    })
+  },
+
+  bindClusterZoom() {
+    for (const layer of CLUSTER_LAYERS) {
+      this.map.on("click", layer, (event) => {
+        const feature = event.features[0]
+        const center = feature.geometry.coordinates
+
+        // Klijentski klaster zna tocan zoom na kojem se raspada. Serverski
+        // ne postoji u MapLibreovom indeksu, pa mu samo priblizimo kartu.
+        const source = this.map.getSource(SOURCE_ID)
+
+        if (feature.properties.cluster_id !== undefined && source.getClusterExpansionZoom) {
+          source
+            .getClusterExpansionZoom(feature.properties.cluster_id)
+            .then((zoom) => this.map.easeTo({center, zoom}))
+            .catch(() => this.map.easeTo({center, zoom: this.map.getZoom() + 2}))
+        } else {
+          this.map.easeTo({center, zoom: this.map.getZoom() + 2})
+        }
+      })
+
+      this.map.on("mouseenter", layer, () => {
+        this.map.getCanvas().style.cursor = "pointer"
+      })
+      this.map.on("mouseleave", layer, () => {
+        this.map.getCanvas().style.cursor = ""
+      })
+    }
+  },
+
   bindPopup() {
     this.popup = new maplibregl.Popup({closeButton: true, closeOnClick: true, maxWidth: "260px"})
 
@@ -228,6 +321,9 @@ export default {
       // projekciji sredina po zemljopisnoj sirini nije sredina ekrana.
       center_lon: center.lng,
       center_lat: center.lat,
+      // Sirina u pikselima: server po njoj racuna velicinu celije sazetka, pa
+      // su klasteri jednako gusti na mobitelu i na desktopu.
+      width_px: Math.round(this.el.clientWidth),
       zoom: this.map.getZoom()
     })
   }

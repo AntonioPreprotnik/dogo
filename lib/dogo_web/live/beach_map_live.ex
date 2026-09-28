@@ -42,7 +42,7 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:page_title, "Karta")
      |> assign(:beaches, [])
      |> assign(:visible_count, 0)
-     |> assign(:truncated?, false)
+     |> assign(:clustered?, false)
      |> assign(:selected_id, nil)
      |> assign(:bbox, nil)
      |> assign(:center, nil)
@@ -52,7 +52,8 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:place_query, "")
      |> assign(:places, [])
      |> assign(:place_search, :idle)
-     |> assign(:tiles_ok?, true)}
+     |> assign(:tiles_ok?, true)
+     |> assign(:map_width_px, nil)}
   end
 
   @impl true
@@ -76,6 +77,7 @@ defmodule DogoWeb.BeachMapLive do
       |> assign(:bbox, bbox)
       |> assign(:center, center_from(params, bbox))
       |> assign(:zoom, params["zoom"])
+      |> assign(:map_width_px, params["width_px"])
       |> refresh()
 
     {:noreply, maybe_push_position(socket)}
@@ -184,20 +186,32 @@ defmodule DogoWeb.BeachMapLive do
       |> BeachFilters.to_opts()
       |> Keyword.put(:near, reference)
       |> Keyword.put(:log, log?)
+      |> Keyword.put(:width_px, socket.assigns.map_width_px)
 
-    {truncated?, beaches} =
-      case Beaches.within_bbox(bbox, opts) do
-        {:ok, beaches} -> {false, beaches}
-        {:too_many, beaches} -> {true, beaches}
-      end
+    case Beaches.within_bbox(bbox, opts) do
+      {:ok, beaches} ->
+        socket
+        |> assign(
+          beaches: Enum.take(beaches, @list_limit),
+          visible_count: length(beaches),
+          clustered?: false
+        )
+        |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
 
-    socket
-    |> assign(
-      beaches: Enum.take(beaches, @list_limit),
-      visible_count: length(beaches),
-      truncated?: truncated?
-    )
-    |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
+      # Previse plaza da bi se svaka poslala: cijeli Jadran je oko 900 KB
+      # GeoJSON-a po pomaku. Umjesto odrezanog skupa saljemo sazetak po mrezi,
+      # pa su brojevi u klasterima tocni. Lista i dalje pokazuje najblize.
+      {:too_many, nearest} ->
+        clusters = Beaches.cluster_in_bbox(bbox, opts)
+
+        socket
+        |> assign(
+          beaches: Enum.take(nearest, @list_limit),
+          visible_count: Enum.sum_by(clusters, & &1.count),
+          clustered?: true
+        )
+        |> push_event("clusters", %{geojson: GeoJSON.cluster_collection(clusters)})
+    end
   end
 
   # Dok je sredina karte prakticki korisnikova lokacija, pozicija se ne upisuje
@@ -308,10 +322,10 @@ defmodule DogoWeb.BeachMapLive do
       <div class="flex items-baseline justify-between gap-4">
         <h1 class="text-2xl font-semibold tracking-tight">Plaže za pse</h1>
         <p class="text-sm text-base-content/70">
-          <span :if={@truncated?} class="font-medium text-warning">
-            Previše plaža za ovaj zoom — prikazano prvih {@visible_count}.
+          <span :if={@clustered?}>
+            Vidljivo: {@visible_count} — grupirano, zumiraj za pojedine plaže
           </span>
-          <span :if={not @truncated?}>Vidljivo: {@visible_count}</span>
+          <span :if={not @clustered?}>Vidljivo: {@visible_count}</span>
         </p>
       </div>
 

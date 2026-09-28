@@ -96,7 +96,8 @@ defmodule DogoWeb.GeolocationTest do
     test "preglednik bez geolokacije dobije svoju poruku", %{conn: conn} do
       {:ok, view, _html} = live(conn, ~p"/")
 
-      assert render_hook(view, "geolocation_error", %{"reason" => "unavailable"}) =~ "ne nudi lokaciju"
+      assert render_hook(view, "geolocation_error", %{"reason" => "unavailable"}) =~
+               "ne nudi lokaciju"
     end
 
     test "bez odbijanja nema nikakve poruke", %{conn: conn} do

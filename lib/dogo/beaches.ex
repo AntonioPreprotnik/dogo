@@ -19,6 +19,12 @@ defmodule Dogo.Beaches do
   # klasteriranja, a odgovor postaje preskup i za server i za mobitel.
   @bbox_limit 500
 
+  # Ciljana veličina ćelije sažetka na ekranu, u pikselima. Ista ideja kao
+  # MapLibreov `clusterRadius`: gustoća klastera ne smije ovisiti o tome je li
+  # korisnik na mobitelu ili na širokom monitoru.
+  @cluster_cell_px 70
+  @default_columns 16
+
   # Radijusi ponuđeni u sučelju, u metrima.
   @radii_m [5_000, 10_000, 25_000, 50_000]
 
@@ -141,6 +147,64 @@ defmodule Dogo.Beaches do
       {:too_many, Enum.take(beaches, limit)}
     else
       {:ok, beaches}
+    end
+  end
+
+  @doc """
+  Sažetak plaža u pravokutniku: mreža ćelija s brojem plaža u svakoj.
+
+  Koristi se kad pojedinačnih plaža ima previše za slanje klijentu. Cijeli
+  Jadran je 3107 plaža, odnosno oko 900 KB GeoJSON-a po svakom pomaku karte —
+  a broj u klasteru mora biti točan, pa se skup ne smije samo odrezati.
+  `ST_SnapToGrid` grupiranje vraća nekoliko desetaka ćelija i točne brojeve.
+
+  Veličina ćelije se izvodi iz širine karte u pikselima (`:width_px`), pa su
+  klasteri jednako gusti na svakom ekranu. Bez nje se koristi zadani broj
+  stupaca.
+  """
+  @spec cluster_in_bbox({float(), float(), float(), float()}, query_opts()) :: [
+          %{lon: float(), lat: float(), count: pos_integer()}
+        ]
+  def cluster_in_bbox({min_lon, min_lat, max_lon, max_lat}, opts \\ []) do
+    cell = max((max_lon - min_lon) / columns(opts), 0.0001)
+
+    query =
+      from b in Beach,
+        where:
+          fragment(
+            "? && ST_MakeEnvelope(?, ?, ?, ?, 4326)",
+            b.geom,
+            ^min_lon,
+            ^min_lat,
+            ^max_lon,
+            ^max_lat
+          ),
+        group_by: fragment("ST_SnapToGrid(?, ?)", b.geom, ^cell),
+        select: %{
+          lon: fragment("ST_X(ST_Centroid(ST_Collect(?)))", b.geom),
+          lat: fragment("ST_Y(ST_Centroid(ST_Collect(?)))", b.geom),
+          count: count(b.id)
+        }
+
+    query
+    |> apply_filters(opts)
+    |> apply_radius(Keyword.get(opts, :near), Keyword.get(opts, :within_m))
+    |> Repo.all(repo_opts(opts))
+  end
+
+  defp columns(opts) do
+    case Keyword.get(opts, :columns) do
+      columns when is_integer(columns) and columns > 0 ->
+        columns
+
+      _ ->
+        case Keyword.get(opts, :width_px) do
+          width when is_number(width) and width > 0 ->
+            max(round(width / @cluster_cell_px), 4)
+
+          _ ->
+            @default_columns
+        end
     end
   end
 
