@@ -15,6 +15,9 @@ defmodule Dogo.Geo.Island do
     field :geom, Geo.PostGIS.Geometry
     field :area_m2, :float
 
+    # Otok do kojeg se dolazi mostom. Vidi migraciju za popis i obrazloženje.
+    field :bridge_connected, :boolean, default: false
+
     timestamps(type: :utc_datetime)
   end
 end

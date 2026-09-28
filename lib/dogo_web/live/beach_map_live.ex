@@ -18,6 +18,7 @@ defmodule DogoWeb.BeachMapLive do
 
   alias Dogo.Beaches
   alias Dogo.Geo.Geocoder
+  alias Dogo.Geo.Islands
   alias DogoWeb.BeachFilters
   alias DogoWeb.GeoJSON
 
@@ -48,6 +49,7 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:center, nil)
      |> assign(:zoom, nil)
      |> assign(:user_location, nil)
+     |> assign(:user_island, nil)
      |> assign(:geolocation, :pending)
      |> assign(:place_query, "")
      |> assign(:places, [])
@@ -89,9 +91,12 @@ defmodule DogoWeb.BeachMapLive do
       when is_number(lat) and is_number(lon) do
     location = %Geo.Point{coordinates: {lon, lat}, srid: 4326}
 
+    # Otok korisnika se racuna jednom, ne po plazi. Upit nosi njegove
+    # koordinate, pa ide bez Ecto loga (E4-S1).
     {:noreply,
      socket
      |> assign(:user_location, location)
+     |> assign(:user_island, Islands.at(location, log: false))
      |> assign(:geolocation, :located)
      |> refresh()}
   end
@@ -180,6 +185,7 @@ defmodule DogoWeb.BeachMapLive do
   defp refresh(socket) do
     %{bbox: bbox, filters: filters} = socket.assigns
     {reference, log?} = reference_point(socket)
+    origin = origin_island(socket, reference, log?)
 
     opts =
       filters
@@ -187,12 +193,16 @@ defmodule DogoWeb.BeachMapLive do
       |> Keyword.put(:near, reference)
       |> Keyword.put(:log, log?)
       |> Keyword.put(:width_px, socket.assigns.map_width_px)
+      |> maybe_only_reachable(filters, origin)
 
     case Beaches.within_bbox(bbox, opts) do
       {:ok, beaches} ->
         socket
         |> assign(
-          beaches: Enum.take(beaches, @list_limit),
+          beaches:
+            beaches
+            |> Enum.take(@list_limit)
+            |> Beaches.mark_across_sea(origin),
           visible_count: length(beaches),
           clustered?: false
         )
@@ -206,7 +216,10 @@ defmodule DogoWeb.BeachMapLive do
 
         socket
         |> assign(
-          beaches: Enum.take(nearest, @list_limit),
+          beaches:
+            nearest
+            |> Enum.take(@list_limit)
+            |> Beaches.mark_across_sea(origin),
           visible_count: Enum.sum_by(clusters, & &1.count),
           clustered?: true
         )
@@ -242,6 +255,23 @@ defmodule DogoWeb.BeachMapLive do
   end
 
   defp at_user_location?(_center, _user_location), do: false
+
+  # Polaziste za sve sto ovisi o "gdje sam": korisnik kad ga znamo, inace
+  # sredina karte. Isto polaziste od kojeg se mjere udaljenosti — inace bi
+  # lista tvrdila da je plaza 3 km daleko, a oznaka da je preko mora u odnosu
+  # na neko trece mjesto.
+  #
+  # Pretpostaviti kopno bilo bi krivo za korisnika koji je vec na otoku: njemu
+  # je bez trajekta dostupan bas taj otok.
+  defp origin_island(%{assigns: %{user_island: %{} = island}}, _reference, _log?), do: island
+  defp origin_island(_socket, nil, _log?), do: nil
+  defp origin_island(_socket, reference, log?), do: Islands.at(reference, log: log?)
+
+  defp maybe_only_reachable(opts, %{without_ferry: true}, origin) do
+    Keyword.put(opts, :reachable_from, origin)
+  end
+
+  defp maybe_only_reachable(opts, _filters, _origin), do: opts
 
   # Kad znamo gdje je korisnik, udaljenosti se mjere od njega — to je i jedini
   # broj koji ga zanima. Tada se Ecto log gasi, jer bi inace ispisao njegove
@@ -359,6 +389,12 @@ defmodule DogoWeb.BeachMapLive do
             label={amenity_label(amenity)}
           />
         </fieldset>
+
+        <.filter_chip
+          name="ferry"
+          checked={@filters.without_ferry}
+          label="Bez trajekta"
+        />
 
         <label class="flex items-center gap-2">
           <span class="text-base-content/70">Radijus</span>
@@ -511,6 +547,13 @@ defmodule DogoWeb.BeachMapLive do
                         bila dvadeset identicnih redaka. --%>
                   <span class="block text-xs text-base-content/60">
                     {dog_status_label(beach.dog_status)} · {surface_label(beach.surface)}
+                  </span>
+                  <span
+                    :if={beach.across_sea}
+                    data-role="across-sea"
+                    class="mt-1 inline-flex items-center gap-1 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-900"
+                  >
+                    <.icon name="hero-arrows-right-left" class="size-3" /> preko mora
                   </span>
                 </span>
                 <span

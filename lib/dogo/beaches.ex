@@ -11,6 +11,8 @@ defmodule Dogo.Beaches do
   import Ecto.Query
 
   alias Dogo.Beaches.Beach
+  alias Dogo.Geo.Island
+  alias Dogo.Geo.Islands
   alias Dogo.Repo
 
   @default_limit 20
@@ -36,6 +38,8 @@ defmodule Dogo.Beaches do
   - `:surface` — popis podloga
   - `:amenities` — popis obaveznih sadržaja, npr. `[:water, :shade]`
   - `:within_m` — ograniči na radijus u metrima
+  - `:reachable_from` — otok (ili `nil` za kopno) do kojeg se mora doći bez
+    trajekta; izostavlja plaže preko mora
   """
   @type query_opts :: keyword()
 
@@ -72,6 +76,34 @@ defmodule Dogo.Beaches do
   def count_beaches, do: Repo.aggregate(Beach, :count)
 
   @doc """
+  Označava svakoj plaži je li preko mora u odnosu na zadano polazište.
+
+  Popunjava virtualno polje `across_sea`. Otoci se dohvaćaju jednim upitom za
+  cijeli popis, ne po plaži.
+  """
+  @spec mark_across_sea([Beach.t()], Island.t() | nil) :: [Beach.t()]
+  def mark_across_sea(beaches, from) do
+    islands = islands_by_id(beaches)
+
+    Enum.map(beaches, fn beach ->
+      %{beach | across_sea: Islands.across_sea?(from, islands[beach.island_id])}
+    end)
+  end
+
+  defp islands_by_id(beaches) do
+    ids = beaches |> Enum.map(& &1.island_id) |> Enum.reject(&is_nil/1) |> Enum.uniq()
+
+    if ids == [] do
+      %{}
+    else
+      Island
+      |> where([i], i.id in ^ids)
+      |> Repo.all()
+      |> Map.new(&{&1.id, &1})
+    end
+  end
+
+  @doc """
   Najbliže plaže zadanoj točki, poredane po stvarnoj udaljenosti.
 
   Svaka plaža ima popunjen virtualni `distance_m` (metri, po sferoidu).
@@ -89,6 +121,7 @@ defmodule Dogo.Beaches do
     |> with_distance(point)
     |> apply_filters(opts)
     |> apply_radius(point, Keyword.get(opts, :within_m))
+    |> apply_reachability(opts)
     |> order_by(
       [b],
       fragment("?::geography <-> ?::geography", type(^point, Geo.PostGIS.Geometry), b.geom)
@@ -139,6 +172,7 @@ defmodule Dogo.Beaches do
       )
       |> apply_filters(opts)
       |> apply_radius(Keyword.get(opts, :near), Keyword.get(opts, :within_m))
+      |> apply_reachability(opts)
       |> order_from(Keyword.get(opts, :near))
       |> limit(^(limit + 1))
       |> Repo.all(repo_opts(opts))
@@ -189,6 +223,7 @@ defmodule Dogo.Beaches do
     query
     |> apply_filters(opts)
     |> apply_radius(Keyword.get(opts, :near), Keyword.get(opts, :within_m))
+    |> apply_reachability(opts)
     |> Repo.all(repo_opts(opts))
   end
 
@@ -258,6 +293,28 @@ defmodule Dogo.Beaches do
         ^radius_m
       )
     )
+  end
+
+  # Filtar "bez trajekta". Ako je polaziste spojeno cestom (kopno ili otok s
+  # mostom), dostupno je sve sto je takoder spojeno cestom. Ako je polaziste
+  # otok bez mosta, dostupan je samo taj otok.
+  defp apply_reachability(query, opts) do
+    if Keyword.has_key?(opts, :reachable_from) do
+      reachable_from(query, Keyword.fetch!(opts, :reachable_from))
+    else
+      query
+    end
+  end
+
+  defp reachable_from(query, %Island{bridge_connected: false, id: id}) do
+    where(query, [b], b.island_id == ^id)
+  end
+
+  defp reachable_from(query, _road_connected) do
+    from b in query,
+      left_join: i in Island,
+      on: i.id == b.island_id,
+      where: is_nil(b.island_id) or i.bridge_connected
   end
 
   defp apply_filters(query, opts) do

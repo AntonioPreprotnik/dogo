@@ -17,10 +17,11 @@ defmodule DogoWeb.BeachFilters do
           dog_status: [atom()],
           surface: [atom()],
           amenities: [atom()],
-          radius_m: pos_integer() | nil
+          radius_m: pos_integer() | nil,
+          without_ferry: boolean()
         }
 
-  defstruct dog_status: [], surface: [], amenities: [], radius_m: nil
+  defstruct dog_status: [], surface: [], amenities: [], radius_m: nil, without_ferry: false
 
   @amenity_filters ~w(dog_shower shade water)a
 
@@ -39,7 +40,8 @@ defmodule DogoWeb.BeachFilters do
       dog_status: parse_list(params["dog"], Beach.dog_statuses()),
       surface: parse_list(params["surface"], Beach.surfaces()),
       amenities: parse_list(params["amenities"], @amenity_filters),
-      radius_m: parse_radius(params["radius"])
+      radius_m: parse_radius(params["radius"]),
+      without_ferry: params["ferry"] == "no"
     }
   end
 
@@ -54,6 +56,7 @@ defmodule DogoWeb.BeachFilters do
     |> put_list("surface", filters.surface)
     |> put_list("amenities", filters.amenities)
     |> put_radius(filters.radius_m)
+    |> put_ferry(filters.without_ferry)
   end
 
   @doc "Opcije za `Dogo.Beaches` upite."
@@ -71,7 +74,7 @@ defmodule DogoWeb.BeachFilters do
   @spec active?(t()) :: boolean()
   def active?(%__MODULE__{} = filters) do
     filters.dog_status != [] or filters.surface != [] or filters.amenities != [] or
-      filters.radius_m != nil
+      filters.radius_m != nil or filters.without_ferry
   end
 
   @doc "Filteri iz podataka forme (checkboxi šalju mapu ključ => \"true\")."
@@ -81,7 +84,8 @@ defmodule DogoWeb.BeachFilters do
       dog_status: checked(params["dog"], Beach.dog_statuses()),
       surface: checked(params["surface"], Beach.surfaces()),
       amenities: checked(params["amenities"], @amenity_filters),
-      radius_m: parse_radius(params["radius"])
+      radius_m: parse_radius(params["radius"]),
+      without_ferry: params["ferry"] == "true"
     }
   end
 
@@ -130,4 +134,7 @@ defmodule DogoWeb.BeachFilters do
 
   defp put_radius(params, nil), do: params
   defp put_radius(params, radius), do: Map.put(params, "radius", to_string(radius))
+
+  defp put_ferry(params, false), do: params
+  defp put_ferry(params, true), do: Map.put(params, "ferry", "no")
 end

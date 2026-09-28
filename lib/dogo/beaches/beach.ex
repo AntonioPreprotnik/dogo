@@ -30,8 +30,9 @@ defmodule Dogo.Beaches.Beach do
 
     belongs_to :island, Dogo.Geo.Island
 
-    # Popunjava ga prostorni upit, ne baza.
+    # Popunjavaju ih upit i kontekst, ne baza.
     field :distance_m, :float, virtual: true
+    field :across_sea, :boolean, virtual: true, default: false
 
     timestamps(type: :utc_datetime)
   end
