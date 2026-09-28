@@ -99,7 +99,10 @@ defmodule Dogo.Beaches do
 
   Vraća `{:ok, beaches}` ili `{:too_many, beaches}` kad rezultata ima više od
   `bbox_limit/0` — tada sučelje traži veći zoom ili klasteriranje (E3-S3).
-  Rezultat nije poredan po udaljenosti jer bbox nema referentnu točku.
+
+  Uz opciju `:near` (točka) rezultat dobiva `distance_m` i poredan je po
+  udaljenosti od te točke. Bez nje bbox nema referentnu točku, pa se vraća
+  poredan po `id`.
   """
   @spec within_bbox({float(), float(), float(), float()}, query_opts()) ::
           {:ok, [Beach.t()]} | {:too_many, [Beach.t()]}
@@ -120,7 +123,7 @@ defmodule Dogo.Beaches do
         )
       )
       |> apply_filters(opts)
-      |> order_by([b], b.id)
+      |> order_from(Keyword.get(opts, :near))
       |> limit(^(limit + 1))
       |> Repo.all()
 
@@ -140,6 +143,17 @@ defmodule Dogo.Beaches do
   def within_radius(%Geo.Point{} = point, radius_m, opts \\ []) do
     point
     |> nearest(Keyword.put(opts, :within_m, radius_m))
+  end
+
+  defp order_from(query, nil), do: order_by(query, [b], b.id)
+
+  defp order_from(query, %Geo.Point{} = point) do
+    query
+    |> with_distance(point)
+    |> order_by(
+      [b],
+      fragment("?::geography <-> ?::geography", type(^point, Geo.PostGIS.Geometry), b.geom)
+    )
   end
 
   defp with_distance(query, point) do

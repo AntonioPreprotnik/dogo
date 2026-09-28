@@ -1,6 +1,7 @@
 defmodule Dogo.ImportTest do
   use Dogo.DataCase, async: true
 
+  import Dogo.BeachesFixtures, only: [osm_id: 1]
   import Mox
 
   alias Dogo.Beaches
@@ -10,10 +11,10 @@ defmodule Dogo.ImportTest do
 
   setup :verify_on_exit!
 
-  defp element(osm_id, overrides \\ %{}) do
+  defp element(base, overrides \\ %{}) do
     defaults = %Element{
-      osm_id: osm_id,
-      name: "Plaža #{osm_id}",
+      osm_id: osm_id(base),
+      name: "Plaža #{base}",
       centroid: %Geo.Point{coordinates: {16.44, 43.50}, srid: 4326},
       tags: %{}
     }
@@ -27,7 +28,7 @@ defmodule Dogo.ImportTest do
                Import.store([element("way/1"), element("node/2")])
 
       assert Beaches.count_beaches() == 2
-      assert %{name: "Plaža way/1"} = Beaches.get_beach_by_osm_id("way/1")
+      assert %{name: "Plaža way/1"} = Beaches.get_beach_by_osm_id(osm_id("way/1"))
     end
 
     test "drugi prolaz ažurira, ne duplicira — uvoz je idempotentan" do
@@ -43,16 +44,16 @@ defmodule Dogo.ImportTest do
       Import.store([element("way/1", %{name: "Staro ime"})])
       Import.store([element("way/1", %{name: "Novo ime"})])
 
-      assert %{name: "Novo ime"} = Beaches.get_beach_by_osm_id("way/1")
+      assert %{name: "Novo ime"} = Beaches.get_beach_by_osm_id(osm_id("way/1"))
       assert Beaches.count_beaches() == 1
     end
 
     test "ne mijenja inserted_at pri ažuriranju" do
       Import.store([element("way/1")])
-      %{inserted_at: first} = Beaches.get_beach_by_osm_id("way/1")
+      %{inserted_at: first} = Beaches.get_beach_by_osm_id(osm_id("way/1"))
 
       Import.store([element("way/1", %{name: "Drugo"})])
-      %{inserted_at: second} = Beaches.get_beach_by_osm_id("way/1")
+      %{inserted_at: second} = Beaches.get_beach_by_osm_id(osm_id("way/1"))
 
       assert first == second
     end
@@ -71,7 +72,7 @@ defmodule Dogo.ImportTest do
                  element("way/1", %{name: "Drugi"})
                ])
 
-      assert %{name: "Drugi"} = Beaches.get_beach_by_osm_id("way/1")
+      assert %{name: "Drugi"} = Beaches.get_beach_by_osm_id(osm_id("way/1"))
     end
 
     test "prazan odgovor je uspjeh bez promjena" do
@@ -81,7 +82,7 @@ defmodule Dogo.ImportTest do
     test "primjenjuje generirane atribute" do
       Import.store([element("way/1", %{tags: %{"dog" => "designated", "surface" => "sand"}})])
 
-      beach = Beaches.get_beach_by_osm_id("way/1")
+      beach = Beaches.get_beach_by_osm_id(osm_id("way/1"))
 
       assert beach.dog_status == :designated
       assert beach.dog_status_source == :osm

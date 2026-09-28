@@ -34,7 +34,7 @@ defmodule Dogo.BeachesTest do
       assert {:error, changeset} = Beaches.create_beach(Map.delete(valid_attrs(), :osm_id))
       assert %{osm_id: ["can't be blank"]} = errors_on(changeset)
 
-      attrs = valid_attrs(%{osm_id: "way/1"})
+      attrs = valid_attrs(%{osm_id: osm_id("way/duplikat")})
       assert {:ok, _} = Beaches.create_beach(attrs)
       assert {:error, changeset} = Beaches.create_beach(attrs)
       assert %{osm_id: ["has already been taken"]} = errors_on(changeset)

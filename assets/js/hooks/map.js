@@ -119,11 +119,17 @@ export default {
   pushBounds() {
     const bounds = this.map.getBounds()
 
+    const center = this.map.getCenter()
+
     this.pushEvent("bounds_changed", {
       west: bounds.getWest(),
       south: bounds.getSouth(),
       east: bounds.getEast(),
       north: bounds.getNorth(),
+      // Centar salje karta, ne racunamo ga iz granica: u Mercatorovoj
+      // projekciji sredina po zemljopisnoj sirini nije sredina ekrana.
+      center_lon: center.lng,
+      center_lat: center.lat,
       zoom: this.map.getZoom()
     })
   }

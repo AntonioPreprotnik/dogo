@@ -148,3 +148,14 @@
   font-weight: 500;
   text-decoration: underline;
 }
+
+/* Na mobitelu lista pliva preko donjeg dijela karte. MapLibre svoje kontrole
+   crta uz donji rub, pa bi atribucija zavrsila ispod liste — a atribucija je
+   licencna obaveza, ne ukras. Visina liste je fiksnih 45 %, pa ih dizemo tocno
+   iznad nje. Na desktopu lista stoji sa strane i nista se ne preklapa. */
+@media (max-width: 1023px) {
+  #beach-map .maplibregl-ctrl-bottom-left,
+  #beach-map .maplibregl-ctrl-bottom-right {
+    bottom: 45%;
+  }
+}

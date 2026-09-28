@@ -2,6 +2,7 @@ defmodule Dogo.Import.Jobs.ImportBeachesTest do
   use Dogo.DataCase, async: true
   use Oban.Testing, repo: Dogo.Repo
 
+  import Dogo.BeachesFixtures, only: [osm_id: 1]
   import Mox
 
   alias Dogo.Beaches
@@ -11,10 +12,10 @@ defmodule Dogo.Import.Jobs.ImportBeachesTest do
 
   setup :verify_on_exit!
 
-  defp element(osm_id) do
+  defp element(base) do
     %Element{
-      osm_id: osm_id,
-      name: "Plaža #{osm_id}",
+      osm_id: osm_id(base),
+      name: "Plaža #{base}",
       centroid: %Geo.Point{coordinates: {16.44, 43.50}, srid: 4326},
       tags: %{}
     }
