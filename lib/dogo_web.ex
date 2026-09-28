@@ -85,6 +85,7 @@ defmodule DogoWeb do
       # HTML escaping functionality
       import Phoenix.HTML
       # Core UI components
+      import DogoWeb.BeachComponents
       import DogoWeb.CoreComponents
 
       # Common modules used in templates
