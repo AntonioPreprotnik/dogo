@@ -71,7 +71,8 @@ defmodule Dogo.MixProject do
       {:bandit, "~> 1.5"},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
-      {:mox, "~> 1.3", only: :test}
+      {:mox, "~> 1.3", only: :test},
+      {:benchee, "~> 1.3", only: [:dev, :test], runtime: false}
     ]
   end
 

@@ -83,7 +83,10 @@ defmodule Dogo.Beaches do
     |> with_distance(point)
     |> apply_filters(opts)
     |> apply_radius(point, Keyword.get(opts, :within_m))
-    |> order_by([b], fragment("? <-> ?", type(^point, Geo.PostGIS.Geometry), b.geom))
+    |> order_by(
+      [b],
+      fragment("?::geography <-> ?::geography", type(^point, Geo.PostGIS.Geometry), b.geom)
+    )
     |> limit(^Keyword.get(opts, :limit, @default_limit))
     |> Repo.all()
   end

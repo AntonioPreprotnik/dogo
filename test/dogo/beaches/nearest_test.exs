@@ -65,11 +65,12 @@ defmodule Dogo.Beaches.NearestTest do
       assert Enum.all?(distances, &(&1 > 100 and &1 < 10_000))
     end
 
-    test "poredak nije isti kao ravninski po stupnjevima" do
-      # Dvije plaže na istoj udaljenosti u stupnjevima: jedna 0.02° istočno,
-      # druga 0.02° sjeverno. Na 43. paraleli je ona istočna bliže.
-      east = point(16.4392 + 0.02, 43.5081)
-      north = point(16.4392, 43.5081 + 0.02)
+    test "poredak je sferoidni, ne ravninski po stupnjevima" do
+      # Namjerno obrnut par: istočna plaža je u stupnjevima *dalje*
+      # (0.030° > 0.025°), ali stvarno bliže, jer je stupanj duljine na 43.
+      # paraleli oko 27 % kraći. Ravninski `<->` bi ih zamijenio.
+      east = point(16.4392 + 0.030, 43.5081)
+      north = point(16.4392, 43.5081 + 0.025)
 
       beach_fixture(%{osm_id: "way/east", name: "Istok", geom: east})
       beach_fixture(%{osm_id: "way/north", name: "Sjever", geom: north})
@@ -82,6 +83,19 @@ defmodule Dogo.Beaches.NearestTest do
       assert first.name == "Istok"
       assert second.name == "Sjever"
       assert first.distance_m < second.distance_m
+    end
+
+    test "rezultat je uvijek rastuće poredan po distance_m" do
+      for i <- 1..20 do
+        beach_fixture(%{
+          osm_id: "way/spread#{i}",
+          geom: point(16.40 + i * 0.004, 43.48 + i * 0.003)
+        })
+      end
+
+      distances = @from |> Beaches.nearest(limit: 50) |> Enum.map(& &1.distance_m)
+
+      assert distances == Enum.sort(distances)
     end
   end
 
