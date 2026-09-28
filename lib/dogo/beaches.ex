@@ -19,6 +19,9 @@ defmodule Dogo.Beaches do
   # klasteriranja, a odgovor postaje preskup i za server i za mobitel.
   @bbox_limit 500
 
+  # Radijusi ponuđeni u sučelju, u metrima.
+  @radii_m [5_000, 10_000, 25_000, 50_000]
+
   @typedoc """
   Opcije prostornih upita.
 
@@ -26,8 +29,12 @@ defmodule Dogo.Beaches do
   - `:dog_status` — popis statusa, npr. `[:designated, :allowed]`
   - `:surface` — popis podloga
   - `:amenities` — popis obaveznih sadržaja, npr. `[:water, :shade]`
+  - `:within_m` — ograniči na radijus u metrima
   """
   @type query_opts :: keyword()
+
+  @doc "Radijusi koje sučelje nudi, u metrima."
+  def radii_m, do: @radii_m
 
   @doc "Tvrdi limit rezultata za bbox upite."
   def bbox_limit, do: @bbox_limit
@@ -75,6 +82,7 @@ defmodule Dogo.Beaches do
     Beach
     |> with_distance(point)
     |> apply_filters(opts)
+    |> apply_radius(point, Keyword.get(opts, :within_m))
     |> order_by([b], fragment("? <-> ?", type(^point, Geo.PostGIS.Geometry), b.geom))
     |> limit(^Keyword.get(opts, :limit, @default_limit))
     |> Repo.all()
@@ -120,6 +128,17 @@ defmodule Dogo.Beaches do
     end
   end
 
+  @doc """
+  Plaže unutar radijusa od točke, poredane po udaljenosti.
+
+  Koristi `ST_DWithin` nad `geography`, pa je radijus u metrima i stvaran.
+  """
+  @spec within_radius(Geo.Point.t(), number(), query_opts()) :: [Beach.t()]
+  def within_radius(%Geo.Point{} = point, radius_m, opts \\ []) do
+    point
+    |> nearest(Keyword.put(opts, :within_m, radius_m))
+  end
+
   defp with_distance(query, point) do
     from b in query,
       select_merge: %{
@@ -130,6 +149,21 @@ defmodule Dogo.Beaches do
             type(^point, Geo.PostGIS.Geometry)
           )
       }
+  end
+
+  defp apply_radius(query, _point, nil), do: query
+
+  defp apply_radius(query, point, radius_m) do
+    where(
+      query,
+      [b],
+      fragment(
+        "ST_DWithin(?::geography, ?::geography, ?)",
+        b.geom,
+        type(^point, Geo.PostGIS.Geometry),
+        ^radius_m
+      )
+    )
   end
 
   defp apply_filters(query, opts) do
