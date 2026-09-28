@@ -28,6 +28,9 @@ defmodule Dogo.Beaches.Beach do
     field :amenities, :map, default: %{}
     field :municipality, :string
 
+    # Popunjava ga prostorni upit, ne baza.
+    field :distance_m, :float, virtual: true
+
     timestamps(type: :utc_datetime)
   end
 
