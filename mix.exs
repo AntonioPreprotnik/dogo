@@ -100,6 +100,7 @@ defmodule Dogo.MixProject do
         "deps.unlock --unused",
         "format",
         "credo --strict",
+        "gettext.extract --check-up-to-date",
         "test"
       ]
     ]

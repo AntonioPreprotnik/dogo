@@ -31,6 +31,8 @@ defmodule DogoWeb.Layouts do
     default: nil,
     doc: "the current [scope](https://hexdocs.pm/phoenix/scopes.html)"
 
+  attr :current_path, :string, default: "/", doc: "za povratak nakon promjene jezika"
+
   slot :inner_block, required: true
 
   def app(assigns) do
@@ -40,7 +42,10 @@ defmodule DogoWeb.Layouts do
         <a href={~p"/"} class="flex items-center gap-2 text-lg font-semibold tracking-tight">
           <span aria-hidden="true">🐕</span> Dogo
         </a>
-        <.theme_toggle />
+        <div class="flex items-center gap-3">
+          <.language_picker current_path={assigns[:current_path] || "/"} />
+          <.theme_toggle />
+        </div>
       </div>
     </header>
 
@@ -57,6 +62,44 @@ defmodule DogoWeb.Layouts do
   end
 
   @doc """
+  Prebacivanje jezika.
+
+  Obična forma, ne LiveView event: cookie se može postaviti samo u HTTP
+  odgovoru. `return_to` vraća korisnika na istu stranicu.
+  """
+  attr :current_path, :string, default: "/"
+
+  def language_picker(assigns) do
+    assigns =
+      assigns
+      |> assign(:locales, DogoWeb.Locale.supported())
+      |> assign(:locale, Gettext.get_locale(DogoWeb.Gettext))
+
+    ~H"""
+    <form action={~p"/locale"} method="post" class="flex items-center gap-1">
+      <input type="hidden" name="_csrf_token" value={get_csrf_token()} />
+      <input type="hidden" name="return_to" value={@current_path} />
+      <button
+        :for={locale <- @locales}
+        type="submit"
+        name="locale"
+        value={locale}
+        data-role="locale-option"
+        data-locale={locale}
+        aria-current={locale == @locale && "true"}
+        class={[
+          "rounded px-1.5 py-0.5 text-xs font-medium uppercase",
+          locale == @locale && "bg-base-content text-base-100",
+          locale != @locale && "text-base-content/60 hover:bg-base-200"
+        ]}
+      >
+        {locale}
+      </button>
+    </form>
+    """
+  end
+
+  @doc """
   Podnožje s atribucijom izvora podataka i disclaimerom.
 
   Prikazuje se na svakoj stranici: licenca OpenStreetMapa (ODbL) to traži, a
@@ -67,16 +110,17 @@ defmodule DogoWeb.Layouts do
     <footer class="mt-12 border-t border-base-300 bg-base-200/50">
       <div class="mx-auto max-w-5xl space-y-2 px-4 py-6 text-xs text-base-content/70 sm:px-6">
         <p>
-          Lokacije plaža: <a
+          {gettext("Beach locations:")} <a
             href="https://www.openstreetmap.org/copyright"
             class="link"
             rel="noopener"
             target="_blank"
-          >© OpenStreetMap contributors</a>, licenca ODbL.
+          >© OpenStreetMap contributors</a>, {gettext("ODbL licence.")}
         </p>
         <p data-role="disclaimer">
-          Podaci su demonstracijski. Atributi vezani uz pse djelomično su generirani i
-          ne odražavaju stvarna pravila. Prije puta provjeri lokalne propise.
+          {gettext(
+            "The data is for demonstration. Dog-related attributes are partly generated and do not reflect real rules. Check local regulations before you travel."
+          )}
         </p>
       </div>
     </footer>

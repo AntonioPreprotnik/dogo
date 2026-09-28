@@ -45,7 +45,7 @@ defmodule DogoWeb.BeachMapLive do
   def mount(_params, _session, socket) do
     {:ok,
      socket
-     |> assign(:page_title, "Karta")
+     |> assign(:page_title, gettext("Map"))
      |> assign(:beaches, [])
      |> assign(:visible_count, 0)
      |> assign(:clustered?, false)
@@ -414,20 +414,22 @@ defmodule DogoWeb.BeachMapLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_path={@current_path}>
       <div class="flex items-baseline justify-between gap-4">
-        <h1 class="text-2xl font-semibold tracking-tight">Plaže za pse</h1>
+        <h1 class="text-2xl font-semibold tracking-tight">{gettext("Dog-friendly beaches")}</h1>
         <p class="text-sm text-base-content/70">
           <span :if={@clustered?}>
-            Vidljivo: {@visible_count} — grupirano, zumiraj za pojedine plaže
+            {gettext("Visible: %{count} — grouped, zoom in for individual beaches",
+              count: @visible_count
+            )}
           </span>
-          <span :if={not @clustered?}>Vidljivo: {@visible_count}</span>
+          <span :if={not @clustered?}>{gettext("Visible: %{count}", count: @visible_count)}</span>
         </p>
       </div>
 
       <form phx-change="filter" class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
         <fieldset class="flex flex-wrap items-center gap-2">
-          <legend class="sr-only">Status za pse</legend>
+          <legend class="sr-only">{gettext("Dog status")}</legend>
           <.filter_chip
             :for={status <- [:designated, :allowed]}
             name={"dog[#{status}]"}
@@ -437,7 +439,7 @@ defmodule DogoWeb.BeachMapLive do
         </fieldset>
 
         <fieldset class="flex flex-wrap items-center gap-2">
-          <legend class="sr-only">Podloga</legend>
+          <legend class="sr-only">{gettext("Surface")}</legend>
           <.filter_chip
             :for={surface <- [:sand, :pebble, :rock]}
             name={"surface[#{surface}]"}
@@ -447,7 +449,7 @@ defmodule DogoWeb.BeachMapLive do
         </fieldset>
 
         <fieldset class="flex flex-wrap items-center gap-2">
-          <legend class="sr-only">Sadržaji</legend>
+          <legend class="sr-only">{gettext("Amenities")}</legend>
           <.filter_chip
             :for={amenity <- BeachFilters.amenity_filters()}
             name={"amenities[#{amenity}]"}
@@ -459,19 +461,19 @@ defmodule DogoWeb.BeachMapLive do
         <.filter_chip
           name="ferry"
           checked={@filters.without_ferry}
-          label="Bez trajekta"
+          label={gettext("No ferry")}
         />
 
         <label class="flex items-center gap-2">
-          <span class="text-base-content/70">Radijus</span>
+          <span class="text-base-content/70">{gettext("Radius")}</span>
           <select name="radius" class="rounded-lg border border-base-300 bg-base-100 px-2 py-1">
-            <option value="" selected={is_nil(@filters.radius_m)}>bez ograničenja</option>
+            <option value="" selected={is_nil(@filters.radius_m)}>{gettext("no limit")}</option>
             <option
               :for={radius <- Beaches.radii_m()}
               value={radius}
               selected={@filters.radius_m == radius}
             >
-              {div(radius, 1000)} km
+              {gettext("%{count} km", count: div(radius, 1000))}
             </option>
           </select>
         </label>
@@ -482,7 +484,7 @@ defmodule DogoWeb.BeachMapLive do
           phx-click="clear_filters"
           class="text-base-content/60 underline"
         >
-          Očisti filtere
+          {gettext("Clear filters")}
         </button>
       </form>
 
@@ -492,7 +494,7 @@ defmodule DogoWeb.BeachMapLive do
         role="status"
         class="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm"
       >
-        Pozadinska karta se ne učitava. Popis plaža i udaljenosti i dalje rade.
+        {gettext("The background map is not loading. The beach list and distances still work.")}
       </p>
 
       <div
@@ -505,26 +507,26 @@ defmodule DogoWeb.BeachMapLive do
         </p>
 
         <form phx-change="search_place" phx-submit="search_place" class="relative">
-          <label for="place-query" class="sr-only">Pretraži mjesto</label>
+          <label for="place-query" class="sr-only">{gettext("Search for a place")}</label>
           <input
             id="place-query"
             type="text"
             name="q"
             value={@place_query}
             autocomplete="off"
-            placeholder="Upiši mjesto, npr. Split"
+            placeholder={gettext("Type a place, e.g. Split")}
             phx-debounce="400"
             class="w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm"
           />
 
           <p :if={@place_search == :searching} class="mt-1 text-xs text-base-content/60">
-            Tražim…
+            {gettext("Searching…")}
           </p>
           <p :if={@place_search == :empty} class="mt-1 text-xs text-base-content/60">
-            Nema mjesta s tim imenom u Hrvatskoj.
+            {gettext("No place with that name in Croatia.")}
           </p>
           <p :if={@place_search == :error} class="mt-1 text-xs text-warning">
-            Pretraga mjesta trenutno ne radi. Pomakni kartu ručno.
+            {gettext("Place search is not working right now. Move the map manually.")}
           </p>
 
           <ul
@@ -578,7 +580,9 @@ defmodule DogoWeb.BeachMapLive do
           <div class="sticky top-0 border-b border-base-300 bg-base-100 px-4 py-2">
             <div class="mx-auto mb-2 h-1 w-10 rounded-full bg-base-300 lg:hidden"></div>
             <h2 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-              {if @user_location, do: "Najbliže tebi", else: "Najbliže sredini karte"}
+              {if @user_location,
+                do: gettext("Closest to you"),
+                else: gettext("Closest to map centre")}
             </h2>
           </div>
 
@@ -607,7 +611,7 @@ defmodule DogoWeb.BeachMapLive do
                 </span>
                 <span class="min-w-0 flex-1">
                   <span class="block truncate font-medium">
-                    {beach.name || "Plaža bez imena"}
+                    {beach.name || gettext("Unnamed beach")}
                   </span>
                   <%!-- Vecina plaza u OSM-u nema ime, pa bi lista bez podloge
                         bila dvadeset identicnih redaka. --%>
@@ -619,7 +623,7 @@ defmodule DogoWeb.BeachMapLive do
                     data-role="across-sea"
                     class="mt-1 inline-flex items-center gap-1 rounded bg-sky-100 px-1.5 py-0.5 text-[11px] font-medium text-sky-900"
                   >
-                    <.icon name="hero-arrows-right-left" class="size-3" /> preko mora
+                    <.icon name="hero-arrows-right-left" class="size-3" /> {gettext("across the sea")}
                   </span>
                 </span>
                 <span class="shrink-0 text-right">
@@ -636,8 +640,8 @@ defmodule DogoWeb.BeachMapLive do
                     class="block text-xs tabular-nums text-base-content/60"
                     title={
                       if @driving[beach.id],
-                        do: "Zračna udaljenost",
-                        else: "Zračna udaljenost; vrijeme vožnje nije dostupno"
+                        do: gettext("Straight-line distance"),
+                        else: gettext("Straight-line distance; driving time unavailable")
                     }
                   >
                     {if @driving[beach.id], do: "", else: "≈ "}{format_distance(beach.distance_m)}
@@ -653,7 +657,7 @@ defmodule DogoWeb.BeachMapLive do
               navigate={~p"/beaches/#{@selected_id}"}
               class="text-sm font-medium underline"
             >
-              Otvori detalje odabrane plaže
+              {gettext("Open details of the selected beach")}
             </.link>
           </div>
         </aside>
@@ -689,26 +693,30 @@ defmodule DogoWeb.BeachMapLive do
   defp place_lon(%{point: %Geo.Point{coordinates: {lon, _lat}}}), do: to_string(lon)
 
   defp geolocation_message(:denied),
-    do: "Bez tvoje lokacije mjerimo udaljenost od sredine karte. Upiši mjesto ili pomakni kartu."
+    do:
+      gettext(
+        "Without your location we measure from the map centre. Type a place or move the map."
+      )
 
   defp geolocation_message(:unavailable),
-    do: "Ovaj preglednik ne nudi lokaciju. Upiši mjesto ili pomakni kartu."
+    do: gettext("This browser does not offer location. Type a place or move the map.")
 
   defp geolocation_message(:timeout),
     do:
-      "Lokacija nije stigla na vrijeme. Ako si u zatvorenom, GPS zna šutjeti — " <>
-        "upiši mjesto ili pomakni kartu."
+      gettext(
+        "Your location did not arrive in time. Indoors, GPS often stays quiet — type a place or move the map."
+      )
 
   defp geolocation_message(:unknown),
-    do: "Lokaciju nije bilo moguće dohvatiti. Upiši mjesto ili pomakni kartu."
+    do: gettext("Your location could not be retrieved. Type a place or move the map.")
 
   defp geolocation_message(_), do: nil
 
   defp empty_message(filters) do
     if BeachFilters.active?(filters) do
-      "Nijedna plaža u ovom dijelu karte ne odgovara filterima."
+      gettext("No beach in this part of the map matches the filters.")
     else
-      "Nema plaža u ovom dijelu karte. Pomakni ili odzumiraj kartu."
+      gettext("No beaches in this part of the map. Move or zoom out.")
     end
   end
 end

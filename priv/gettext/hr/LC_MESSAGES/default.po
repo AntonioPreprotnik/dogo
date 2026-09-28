@@ -1,0 +1,349 @@
+## "msgid"s in this file come from POT (.pot) files.
+###
+### Do not add, change, or remove "msgid"s manually here as
+### they're tied to the ones in the corresponding POT file
+### (with the same domain).
+###
+### Use "mix gettext.extract --merge" or "mix gettext.merge"
+### to merge POT files into PO files.
+msgid ""
+msgstr ""
+"Language: hr\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
+
+#: lib/dogo_web/components/beach_components.ex:166
+#, elixir-autogen, elixir-format
+msgid "%{count} h"
+msgstr "%{count} h"
+
+#: lib/dogo_web/components/beach_components.ex:180
+#: lib/dogo_web/live/beach_map_live.ex:476
+#, elixir-autogen, elixir-format
+msgid "%{count} km"
+msgstr "%{count} km"
+
+#: lib/dogo_web/components/beach_components.ex:176
+#, elixir-autogen, elixir-format
+msgid "%{count} m"
+msgstr "%{count} m"
+
+#: lib/dogo_web/components/beach_components.ex:158
+#, elixir-autogen, elixir-format
+msgid "%{count} min"
+msgstr "%{count} min"
+
+#: lib/dogo_web/components/beach_components.ex:167
+#, elixir-autogen, elixir-format
+msgid "%{hours} h %{minutes} min"
+msgstr "%{hours} h %{minutes} min"
+
+#: lib/dogo_web/components/core_components.ex:370
+#, elixir-autogen, elixir-format
+msgid "Actions"
+msgstr "Radnje"
+
+#: lib/dogo_web/live/beach_detail_live.ex:87
+#: lib/dogo_web/live/beach_map_live.ex:452
+#, elixir-autogen, elixir-format
+msgid "Amenities"
+msgstr "Sadržaji"
+
+#: lib/dogo_web/components/layouts.ex:154
+#: lib/dogo_web/components/layouts.ex:166
+#, elixir-autogen, elixir-format
+msgid "Attempting to reconnect"
+msgstr "Pokušavam se ponovno spojiti"
+
+#: lib/dogo_web/live/beach_detail_live.ex:48
+#, elixir-autogen, elixir-format
+msgid "Back to map"
+msgstr "Natrag na kartu"
+
+#: lib/dogo_web/live/beach_detail_live.ex:19
+#, elixir-autogen, elixir-format
+msgid "Beach"
+msgstr "Plaža"
+
+#: lib/dogo_web/components/layouts.ex:113
+#, elixir-autogen, elixir-format
+msgid "Beach locations:"
+msgstr "Lokacije plaža:"
+
+#: lib/dogo_web/components/beach_components.ex:58
+#, elixir-autogen, elixir-format
+msgid "Bins"
+msgstr "Kante za smeće"
+
+#: lib/dogo_web/live/beach_map_live.ex:487
+#, elixir-autogen, elixir-format
+msgid "Clear filters"
+msgstr "Očisti filtere"
+
+#: lib/dogo_web/live/beach_map_live.ex:585
+#, elixir-autogen, elixir-format
+msgid "Closest to map centre"
+msgstr "Najbliže sredini karte"
+
+#: lib/dogo_web/live/beach_map_live.ex:584
+#, elixir-autogen, elixir-format
+msgid "Closest to you"
+msgstr "Najbliže tebi"
+
+#: lib/dogo_web/components/beach_components.ex:49
+#, elixir-autogen, elixir-format
+msgid "Concrete"
+msgstr "Beton"
+
+#: lib/dogo_web/live/beach_detail_live.ex:71
+#, elixir-autogen, elixir-format
+msgid "Coordinates"
+msgstr "Koordinate"
+
+#: lib/dogo_web/components/beach_components.ex:40
+#, elixir-autogen, elixir-format
+msgid "Dog beach"
+msgstr "Plaža za pse"
+
+#: lib/dogo_web/components/beach_components.ex:55
+#, elixir-autogen, elixir-format
+msgid "Dog shower"
+msgstr "Tuš za pse"
+
+#: lib/dogo_web/live/beach_map_live.ex:432
+#, elixir-autogen, elixir-format
+msgid "Dog status"
+msgstr "Status za pse"
+
+#: lib/dogo_web/components/layouts/root.html.heex:7
+#: lib/dogo_web/live/beach_map_live.ex:419
+#, elixir-autogen, elixir-format
+msgid "Dog-friendly beaches"
+msgstr "Plaže za pse"
+
+#: lib/dogo_web/components/beach_components.ex:41
+#, elixir-autogen, elixir-format
+msgid "Dogs allowed"
+msgstr "Psi dozvoljeni"
+
+#: lib/dogo_web/components/beach_components.ex:42
+#, elixir-autogen, elixir-format
+msgid "Dogs not allowed"
+msgstr "Psi nisu dozvoljeni"
+
+#: lib/dogo_web/components/beach_components.ex:57
+#, elixir-autogen, elixir-format
+msgid "Drinking water"
+msgstr "Pitka voda"
+
+#: lib/dogo_web/live/beach_map_live.ex:48
+#, elixir-autogen, elixir-format
+msgid "Map"
+msgstr "Karta"
+
+#: lib/dogo_web/components/beach_components.ex:50
+#, elixir-autogen, elixir-format
+msgid "Mixed"
+msgstr "Miješano"
+
+#: lib/dogo_web/live/beach_detail_live.ex:109
+#, elixir-autogen, elixir-format
+msgid "Navigate"
+msgstr "Navigiraj"
+
+#: lib/dogo_web/live/beach_map_live.ex:717
+#, elixir-autogen, elixir-format
+msgid "No beach in this part of the map matches the filters."
+msgstr "Nijedna plaža u ovom dijelu karte ne odgovara filterima."
+
+#: lib/dogo_web/live/beach_map_live.ex:719
+#, elixir-autogen, elixir-format
+msgid "No beaches in this part of the map. Move or zoom out."
+msgstr "Nema plaža u ovom dijelu karte. Pomakni ili odzumiraj kartu."
+
+#: lib/dogo_web/live/beach_map_live.ex:464
+#, elixir-autogen, elixir-format
+msgid "No ferry"
+msgstr "Bez trajekta"
+
+#: lib/dogo_web/live/beach_map_live.ex:526
+#, elixir-autogen, elixir-format
+msgid "No place with that name in Croatia."
+msgstr "Nema mjesta s tim imenom u Hrvatskoj."
+
+#: lib/dogo_web/components/layouts.ex:118
+#, elixir-autogen, elixir-format
+msgid "ODbL licence."
+msgstr "licenca ODbL."
+
+#: lib/dogo_web/live/beach_map_live.ex:660
+#, elixir-autogen, elixir-format
+msgid "Open details of the selected beach"
+msgstr "Otvori detalje odabrane plaže"
+
+#: lib/dogo_web/components/beach_components.ex:59
+#, elixir-autogen, elixir-format
+msgid "Parking"
+msgstr "Parking"
+
+#: lib/dogo_web/components/beach_components.ex:46
+#, elixir-autogen, elixir-format
+msgid "Pebble"
+msgstr "Šljunak"
+
+#: lib/dogo_web/live/beach_map_live.ex:529
+#, elixir-autogen, elixir-format
+msgid "Place search is not working right now. Move the map manually."
+msgstr "Pretraga mjesta trenutno ne radi. Pomakni kartu ručno."
+
+#: lib/dogo_web/live/beach_map_live.ex:468
+#, elixir-autogen, elixir-format
+msgid "Radius"
+msgstr "Radijus"
+
+#: lib/dogo_web/components/beach_components.ex:48
+#, elixir-autogen, elixir-format
+msgid "Rock"
+msgstr "Stijene"
+
+#: lib/dogo_web/components/beach_components.ex:47
+#, elixir-autogen, elixir-format
+msgid "Sand"
+msgstr "Pijesak"
+
+#: lib/dogo_web/live/beach_map_live.ex:510
+#, elixir-autogen, elixir-format
+msgid "Search for a place"
+msgstr "Pretraži mjesto"
+
+#: lib/dogo_web/live/beach_map_live.ex:523
+#, elixir-autogen, elixir-format
+msgid "Searching…"
+msgstr "Tražim…"
+
+#: lib/dogo_web/components/beach_components.ex:56
+#, elixir-autogen, elixir-format
+msgid "Shade"
+msgstr "Hlad"
+
+#: lib/dogo_web/components/layouts.ex:161
+#, elixir-autogen, elixir-format
+msgid "Something went wrong!"
+msgstr "Nešto je pošlo po zlu!"
+
+#: lib/dogo_web/live/beach_detail_live.ex:80
+#, elixir-autogen, elixir-format
+msgid "Source"
+msgstr "Izvor"
+
+#: lib/dogo_web/live/beach_map_live.ex:643
+#, elixir-autogen, elixir-format
+msgid "Straight-line distance"
+msgstr "Zračna udaljenost"
+
+#: lib/dogo_web/live/beach_map_live.ex:644
+#, elixir-autogen, elixir-format
+msgid "Straight-line distance; driving time unavailable"
+msgstr "Zračna udaljenost; vrijeme vožnje nije dostupno"
+
+#: lib/dogo_web/live/beach_detail_live.ex:66
+#: lib/dogo_web/live/beach_map_live.ex:442
+#, elixir-autogen, elixir-format
+msgid "Surface"
+msgstr "Podloga"
+
+#: lib/dogo_web/live/beach_map_live.ex:497
+#, elixir-autogen, elixir-format
+msgid "The background map is not loading. The beach list and distances still work."
+msgstr "Pozadinska karta se ne učitava. Popis plaža i udaljenosti i dalje rade."
+
+#: lib/dogo_web/components/layouts.ex:121
+#, elixir-autogen, elixir-format
+msgid "The data is for demonstration. Dog-related attributes are partly generated and do not reflect real rules. Check local regulations before you travel."
+msgstr "Podaci su demonstracijski. Atributi vezani uz pse djelomično su generirani i ne odražavaju stvarna pravila. Prije puta provjeri lokalne propise."
+
+#: lib/dogo_web/live/beach_map_live.ex:702
+#, elixir-autogen, elixir-format
+msgid "This browser does not offer location. Type a place or move the map."
+msgstr "Ovaj preglednik ne nudi lokaciju. Upiši mjesto ili pomakni kartu."
+
+#: lib/dogo_web/components/beach_components.ex:94
+#, elixir-autogen, elixir-format
+msgid "This value comes from OpenStreetMap."
+msgstr "Podatak dolazi iz OpenStreetMapa."
+
+#: lib/dogo_web/components/beach_components.ex:95
+#, elixir-autogen, elixir-format
+msgid "This value was generated for the demo."
+msgstr "Podatak je generiran za potrebe demonstracije."
+
+#: lib/dogo_web/live/beach_map_live.ex:517
+#, elixir-autogen, elixir-format
+msgid "Type a place, e.g. Split"
+msgstr "Upiši mjesto, npr. Split"
+
+#: lib/dogo_web/components/beach_components.ex:43
+#: lib/dogo_web/components/beach_components.ex:51
+#, elixir-autogen, elixir-format
+msgid "Unknown"
+msgstr "Nepoznato"
+
+#: lib/dogo_web/live/beach_detail_live.ex:53
+#: lib/dogo_web/live/beach_map_live.ex:614
+#, elixir-autogen, elixir-format
+msgid "Unnamed beach"
+msgstr "Plaža bez imena"
+
+#: lib/dogo_web/live/beach_map_live.ex:426
+#, elixir-autogen, elixir-format
+msgid "Visible: %{count}"
+msgstr "Vidljivo: %{count}"
+
+#: lib/dogo_web/live/beach_map_live.ex:422
+#, elixir-autogen, elixir-format
+msgid "Visible: %{count} — grouped, zoom in for individual beaches"
+msgstr "Vidljivo: %{count} — grupirano, zumiraj za pojedine plaže"
+
+#: lib/dogo_web/components/layouts.ex:149
+#, elixir-autogen, elixir-format
+msgid "We can't find the internet"
+msgstr "Ne mogu pronaći internet"
+
+#: lib/dogo_web/live/beach_map_live.ex:697
+#, elixir-autogen, elixir-format
+msgid "Without your location we measure from the map centre. Type a place or move the map."
+msgstr "Bez tvoje lokacije mjerimo udaljenost od sredine karte. Upiši mjesto ili pomakni kartu."
+
+#: lib/dogo_web/live/beach_map_live.ex:711
+#, elixir-autogen, elixir-format
+msgid "Your location could not be retrieved. Type a place or move the map."
+msgstr "Lokaciju nije bilo moguće dohvatiti. Upiši mjesto ili pomakni kartu."
+
+#: lib/dogo_web/live/beach_map_live.ex:706
+#, elixir-autogen, elixir-format
+msgid "Your location did not arrive in time. Indoors, GPS often stays quiet — type a place or move the map."
+msgstr "Lokacija nije stigla na vrijeme. Ako si u zatvorenom, GPS zna šutjeti — upiši mjesto ili pomakni kartu."
+
+#: lib/dogo_web/live/beach_map_live.ex:626
+#, elixir-autogen, elixir-format
+msgid "across the sea"
+msgstr "preko mora"
+
+#: lib/dogo_web/components/core_components.ex:76
+#, elixir-autogen, elixir-format
+msgid "close"
+msgstr "zatvori"
+
+#: lib/dogo_web/components/beach_components.ex:91
+#, elixir-autogen, elixir-format
+msgid "from OSM"
+msgstr "iz OSM-a"
+
+#: lib/dogo_web/components/beach_components.ex:91
+#, elixir-autogen, elixir-format
+msgid "generated"
+msgstr "generirano"
+
+#: lib/dogo_web/live/beach_map_live.ex:470
+#, elixir-autogen, elixir-format
+msgid "no limit"
+msgstr "bez ograničenja"

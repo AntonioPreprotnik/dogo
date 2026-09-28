@@ -8,6 +8,7 @@ defmodule DogoWeb.Router do
     plug :put_root_layout, html: {DogoWeb.Layouts, :root}
     plug :protect_from_forgery
     plug :put_secure_browser_headers
+    plug DogoWeb.Locale
   end
 
   pipeline :api do
@@ -17,8 +18,12 @@ defmodule DogoWeb.Router do
   scope "/", DogoWeb do
     pipe_through :browser
 
-    live "/", BeachMapLive, :index
-    live "/beaches/:id", BeachDetailLive, :show
+    live_session :default, on_mount: DogoWeb.Locale do
+      live "/", BeachMapLive, :index
+      live "/beaches/:id", BeachDetailLive, :show
+    end
+
+    post "/locale", LocaleController, :update
   end
 
   scope "/", DogoWeb do

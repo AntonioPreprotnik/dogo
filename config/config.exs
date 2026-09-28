@@ -26,6 +26,15 @@ config :dogo, Oban,
 # hook salje koordinate ugnijezdene pod kljucem "location".
 config :phoenix, :filter_parameters, ["password", "location"]
 
+# Jezici. Zadani je hrvatski, jer je publika prvenstveno domaca i turisti u
+# Hrvatskoj; njemacki je tu jer je najveci dio gostiju na Jadranu iz njemackog
+# govornog podrucja.
+#
+# msgid-evi su na engleskom, ne na hrvatskom: to je konvencija u Gettextu i
+# cini kod citljivim recenzentu koji ne govori hrvatski. Posljedica je da
+# engleski ne treba prijevode — msgid *jest* engleski tekst.
+config :dogo, DogoWeb.Gettext, default_locale: "hr", locales: ~w(hr en de)
+
 # Pozadinske karte. OpenFreeMap ne trazi API kljuc; provider se mijenja
 # varijablom okoline, sto je mitigacija za rizik "tile provider ukine free tier".
 config :dogo, :map_style_url, "https://tiles.openfreemap.org/styles/liberty"

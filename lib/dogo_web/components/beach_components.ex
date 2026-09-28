@@ -1,17 +1,15 @@
 defmodule DogoWeb.BeachComponents do
   @moduledoc """
   Komponente specifične za prikaz plaža.
+
+  Natpisi su **funkcije, ne module atributi**: atribut se evaluira pri
+  kompilaciji, pa bi prijevod ostao zamrznut na jeziku koji je bio aktivan u
+  tom trenutku. Gettext mora biti pozvan za vrijeme zahtjeva.
   """
   use Phoenix.Component
+  use Gettext, backend: DogoWeb.Gettext
 
   import DogoWeb.CoreComponents, only: [icon: 1]
-
-  @labels %{
-    designated: "Plaža za pse",
-    allowed: "Psi dozvoljeni",
-    not_allowed: "Psi nisu dozvoljeni",
-    unknown: "Nepoznato"
-  }
 
   @classes %{
     designated: "bg-emerald-100 text-emerald-900",
@@ -20,21 +18,12 @@ defmodule DogoWeb.BeachComponents do
     unknown: "bg-base-300 text-base-content"
   }
 
-  @surface_labels %{
-    pebble: "Šljunak",
-    sand: "Pijesak",
-    rock: "Stijene",
-    concrete: "Beton",
-    mixed: "Miješano",
-    unknown: "Nepoznato"
-  }
-
-  @amenity_labels %{
-    "dog_shower" => {"Tuš za pse", "hero-sparkles"},
-    "shade" => {"Hlad", "hero-sun"},
-    "water" => {"Pitka voda", "hero-beaker"},
-    "bins" => {"Kante za smeće", "hero-trash"},
-    "parking" => {"Parking", "hero-truck"}
+  @amenity_icons %{
+    "dog_shower" => "hero-sparkles",
+    "shade" => "hero-sun",
+    "water" => "hero-beaker",
+    "bins" => "hero-trash",
+    "parking" => "hero-truck"
   }
 
   @doc "Boja markera po statusu, u formatu koji MapLibre razumije."
@@ -48,15 +37,79 @@ defmodule DogoWeb.BeachComponents do
   end
 
   @doc "Ljudski čitljiv naziv statusa za pse."
-  def dog_status_label(status), do: @labels[status]
+  def dog_status_label(:designated), do: gettext("Dog beach")
+  def dog_status_label(:allowed), do: gettext("Dogs allowed")
+  def dog_status_label(:not_allowed), do: gettext("Dogs not allowed")
+  def dog_status_label(_unknown), do: gettext("Unknown")
 
   @doc "Ljudski čitljiv naziv podloge."
-  def surface_label(surface), do: @surface_labels[surface]
+  def surface_label(:pebble), do: gettext("Pebble")
+  def surface_label(:sand), do: gettext("Sand")
+  def surface_label(:rock), do: gettext("Rock")
+  def surface_label(:concrete), do: gettext("Concrete")
+  def surface_label(:mixed), do: gettext("Mixed")
+  def surface_label(_unknown), do: gettext("Unknown")
 
   @doc "Ljudski čitljiv naziv sadržaja."
-  def amenity_label(amenity) do
-    {label, _icon} = Map.fetch!(@amenity_labels, to_string(amenity))
-    label
+  def amenity_label(amenity) when is_atom(amenity), do: amenity |> to_string() |> amenity_label()
+  def amenity_label("dog_shower"), do: gettext("Dog shower")
+  def amenity_label("shade"), do: gettext("Shade")
+  def amenity_label("water"), do: gettext("Drinking water")
+  def amenity_label("bins"), do: gettext("Bins")
+  def amenity_label("parking"), do: gettext("Parking")
+
+  @doc """
+  Oznaka statusa za pse, obojana prema statusu.
+  """
+  attr :status, :atom, required: true
+
+  def dog_status(assigns) do
+    assigns =
+      assign(assigns,
+        label: dog_status_label(assigns.status),
+        class: @classes[assigns.status]
+      )
+
+    ~H"""
+    <span class={["inline-flex rounded-full px-2 py-0.5 text-xs font-medium", @class]}>
+      {@label}
+    </span>
+    """
+  end
+
+  @doc """
+  Odakle dolazi status za pse: iz OSM-a ili je generiran.
+
+  Bez ove oznake demo podatak izgleda kao provjereno pravilo, što je upravo
+  ono što disclaimer pokušava spriječiti.
+  """
+  attr :source, :atom, required: true, values: [:osm, :generated]
+
+  def dog_status_source(assigns) do
+    assigns =
+      assign(assigns,
+        label: if(assigns.source == :osm, do: gettext("from OSM"), else: gettext("generated")),
+        title:
+          if(assigns.source == :osm,
+            do: gettext("This value comes from OpenStreetMap."),
+            else: gettext("This value was generated for the demo.")
+          )
+      )
+
+    ~H"""
+    <span
+      data-role="dog-status-source"
+      data-source={@source}
+      class="inline-flex items-center gap-1 text-xs text-base-content/70"
+      title={@title}
+    >
+      <.icon
+        name={if @source == :osm, do: "hero-check-badge", else: "hero-beaker"}
+        class="size-3.5"
+      />
+      {@label}
+    </span>
+    """
   end
 
   @doc """
@@ -84,19 +137,15 @@ defmodule DogoWeb.BeachComponents do
       >
         <.icon name={icon} class="size-4 shrink-0" />
         <span>{label}</span>
-        <.icon
-          :if={present?}
-          name="hero-check"
-          class="ml-auto size-4 shrink-0 text-emerald-600"
-        />
+        <.icon :if={present?} name="hero-check" class="ml-auto size-4 shrink-0 text-emerald-600" />
       </li>
     </ul>
     """
   end
 
   defp amenity_items(amenities) do
-    for {key, {label, icon}} <- Enum.sort(@amenity_labels) do
-      {key, label, icon, Map.get(amenities, key, false) == true}
+    for {key, icon} <- Enum.sort(@amenity_icons) do
+      {key, amenity_label(key), icon, Map.get(amenities, key, false) == true}
     end
   end
 
@@ -106,67 +155,28 @@ defmodule DogoWeb.BeachComponents do
   def format_duration(nil), do: nil
 
   def format_duration(seconds) when seconds < 3_600 do
-    "#{max(round(seconds / 60), 1)} min"
+    gettext("%{count} min", count: max(round(seconds / 60), 1))
   end
 
   def format_duration(seconds) do
     hours = div(round(seconds), 3_600)
     minutes = div(rem(round(seconds), 3_600), 60)
 
-    if minutes == 0, do: "#{hours} h", else: "#{hours} h #{minutes} min"
+    if minutes == 0,
+      do: gettext("%{count} h", count: hours),
+      else: gettext("%{hours} h %{minutes} min", hours: hours, minutes: minutes)
   end
 
   @doc """
   Udaljenost u ljudskom obliku: metri ispod kilometra, inače kilometri.
   """
   def format_distance(nil), do: nil
-  def format_distance(metres) when metres < 1_000, do: "#{round(metres)} m"
+
+  def format_distance(metres) when metres < 1_000 do
+    gettext("%{count} m", count: round(metres))
+  end
 
   def format_distance(metres) do
-    :erlang.float_to_binary(metres / 1_000, decimals: 1) <> " km"
-  end
-
-  @doc """
-  Oznaka statusa za pse, obojana prema statusu.
-  """
-  attr :status, :atom, required: true
-
-  def dog_status(assigns) do
-    assigns = assign(assigns, label: @labels[assigns.status], class: @classes[assigns.status])
-
-    ~H"""
-    <span class={["inline-flex rounded-full px-2 py-0.5 text-xs font-medium", @class]}>
-      {@label}
-    </span>
-    """
-  end
-
-  @doc """
-  Odakle dolazi status za pse: iz OSM-a ili je generiran.
-
-  Bez ove oznake demo podatak izgleda kao provjereno pravilo, što je upravo
-  ono što disclaimer pokušava spriječiti.
-  """
-  attr :source, :atom, required: true, values: [:osm, :generated]
-
-  def dog_status_source(assigns) do
-    ~H"""
-    <span
-      data-role="dog-status-source"
-      data-source={@source}
-      class="inline-flex items-center gap-1 text-xs text-base-content/70"
-      title={
-        if @source == :osm,
-          do: "Podatak dolazi iz OpenStreetMapa.",
-          else: "Podatak je generiran za potrebe demonstracije."
-      }
-    >
-      <.icon
-        name={if @source == :osm, do: "hero-check-badge", else: "hero-beaker"}
-        class="size-3.5"
-      />
-      {if @source == :osm, do: "iz OSM-a", else: "generirano"}
-    </span>
-    """
+    gettext("%{count} km", count: :erlang.float_to_binary(metres / 1_000, decimals: 1))
   end
 end

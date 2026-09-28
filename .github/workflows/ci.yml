@@ -65,6 +65,9 @@ jobs:
       - name: Compile without warnings
         run: mix compile --warnings-as-errors
 
+      - name: Prijevodi su u koraku s kodom
+        run: mix gettext.extract --check-up-to-date
+
       - name: Credo
         run: mix credo --strict
 

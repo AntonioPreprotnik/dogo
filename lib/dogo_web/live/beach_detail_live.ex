@@ -16,7 +16,7 @@ defmodule DogoWeb.BeachDetailLive do
 
     {:ok,
      socket
-     |> assign(:page_title, beach.name || "Plaža")
+     |> assign(:page_title, beach.name || gettext("Beach"))
      |> assign(:beach, beach)
      |> assign(:lon, lon)
      |> assign(:lat, lat)
@@ -43,14 +43,14 @@ defmodule DogoWeb.BeachDetailLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <Layouts.app flash={@flash}>
+    <Layouts.app flash={@flash} current_path={@current_path}>
       <.link navigate={~p"/"} class="inline-flex items-center gap-1 text-sm text-base-content/70">
-        <.icon name="hero-arrow-left" class="size-4" /> Natrag na kartu
+        <.icon name="hero-arrow-left" class="size-4" /> {gettext("Back to map")}
       </.link>
 
       <header class="space-y-2">
         <h1 class="text-2xl font-semibold tracking-tight">
-          {@beach.name || "Plaža bez imena"}
+          {@beach.name || gettext("Unnamed beach")}
         </h1>
         <p :if={@beach.municipality} class="text-sm text-base-content/70">
           {@beach.municipality}
@@ -63,11 +63,13 @@ defmodule DogoWeb.BeachDetailLive do
 
       <dl class="grid grid-cols-2 gap-4 rounded-xl border border-base-300 p-4 sm:grid-cols-3">
         <div>
-          <dt class="text-xs uppercase tracking-wide text-base-content/60">Podloga</dt>
+          <dt class="text-xs uppercase tracking-wide text-base-content/60">{gettext("Surface")}</dt>
           <dd class="mt-0.5 font-medium" data-role="surface">{surface_label(@beach.surface)}</dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-base-content/60">Koordinate</dt>
+          <dt class="text-xs uppercase tracking-wide text-base-content/60">
+            {gettext("Coordinates")}
+          </dt>
           <dd class="mt-0.5 font-mono text-sm">
             {:erlang.float_to_binary(@lat, decimals: 4)}, {:erlang.float_to_binary(@lon,
               decimals: 4
@@ -75,14 +77,14 @@ defmodule DogoWeb.BeachDetailLive do
           </dd>
         </div>
         <div>
-          <dt class="text-xs uppercase tracking-wide text-base-content/60">Izvor</dt>
+          <dt class="text-xs uppercase tracking-wide text-base-content/60">{gettext("Source")}</dt>
           <dd class="mt-0.5 font-mono text-sm">{@beach.osm_id}</dd>
         </div>
       </dl>
 
       <section class="space-y-2">
         <h2 class="text-sm font-semibold uppercase tracking-wide text-base-content/60">
-          Sadržaji
+          {gettext("Amenities")}
         </h2>
         <.amenities amenities={@beach.amenities} />
       </section>
@@ -104,7 +106,7 @@ defmodule DogoWeb.BeachDetailLive do
           data-role="navigate-google"
           class="inline-flex items-center gap-2 rounded-lg bg-base-content px-4 py-2 text-sm font-medium text-base-100"
         >
-          <.icon name="hero-map-pin" class="size-4" /> Navigiraj
+          <.icon name="hero-map-pin" class="size-4" /> {gettext("Navigate")}
         </a>
         <a
           href={apple_maps_url(@lat, @lon)}
