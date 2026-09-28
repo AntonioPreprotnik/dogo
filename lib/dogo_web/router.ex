@@ -18,6 +18,7 @@ defmodule DogoWeb.Router do
     pipe_through :browser
 
     live "/", BeachMapLive, :index
+    live "/beaches/:id", BeachDetailLive, :show
   end
 
   scope "/", DogoWeb do
