@@ -9,6 +9,7 @@ defmodule Dogo.Import.Overpass.Parser do
   """
 
   alias Dogo.Import.Overpass.Element
+  alias Dogo.Import.Overpass.IslandElement
 
   @srid 4326
 
@@ -51,6 +52,82 @@ defmodule Dogo.Import.Overpass.Parser do
   end
 
   def parse_element(_), do: nil
+
+  @doc """
+  Otoci iz odgovora na `out bb tags`: samo identitet, ime i granice.
+
+  Prva faza uvoza otoka. Geometrija cijele Hrvatske u jednom zahtjevu su
+  deseci megabajta, pa se prvo po granicama odabere što je vrijedno dohvatiti.
+  """
+  @spec parse_island_bounds(map()) :: {:ok, [map()]} | {:error, term()}
+  def parse_island_bounds(%{"remark" => remark}) when is_binary(remark),
+    do: {:error, {:overpass_remark, remark}}
+
+  def parse_island_bounds(%{"elements" => elements}) when is_list(elements) do
+    islands =
+      for %{"type" => type, "id" => id, "bounds" => bounds} = element <- elements do
+        %{
+          osm_id: "#{type}/#{id}",
+          type: type,
+          id: id,
+          name: get_in(element, ["tags", "name"]),
+          bounds: bounds
+        }
+      end
+
+    {:ok, islands}
+  end
+
+  def parse_island_bounds(_other), do: {:error, :unexpected_payload}
+
+  @doc """
+  Otoci iz odgovora na `out geom`.
+
+  `way` daje jednu liniju, relacija po jednu za svaki vanjski član. Članovi
+  relacije nisu ni poredani ni zatvoreni — Krk ih ima 72 — pa ih ne spajamo
+  ovdje nego u bazi.
+  """
+  @spec parse_islands(map()) :: {:ok, [IslandElement.t()]} | {:error, term()}
+  def parse_islands(%{"remark" => remark}) when is_binary(remark),
+    do: {:error, {:overpass_remark, remark}}
+
+  def parse_islands(%{"elements" => elements}) when is_list(elements) do
+    {:ok, Enum.flat_map(elements, &List.wrap(parse_island(&1)))}
+  end
+
+  def parse_islands(_other), do: {:error, :unexpected_payload}
+
+  @doc "Jedan otok, ili `nil` ako nema upotrebljive geometrije."
+  @spec parse_island(map()) :: IslandElement.t() | nil
+  def parse_island(%{"type" => type, "id" => id} = element) do
+    case island_lines(element) do
+      [] ->
+        nil
+
+      lines ->
+        %IslandElement{osm_id: "#{type}/#{id}", name: element["tags"]["name"], lines: lines}
+    end
+  end
+
+  def parse_island(_element), do: nil
+
+  defp island_lines(%{"geometry" => geometry}) when is_list(geometry) do
+    case ring(geometry) do
+      line when length(line) >= 2 -> [line]
+      _ -> []
+    end
+  end
+
+  defp island_lines(%{"members" => members}) when is_list(members) do
+    for %{"role" => role, "geometry" => geometry} <- members,
+        role in ["outer", ""],
+        line = ring(geometry),
+        length(line) >= 2 do
+      line
+    end
+  end
+
+  defp island_lines(_element), do: []
 
   defp centroid(%{"lat" => lat, "lon" => lon}), do: point(lon, lat)
   defp centroid(%{"center" => %{"lat" => lat, "lon" => lon}}), do: point(lon, lat)

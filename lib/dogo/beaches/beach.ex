@@ -28,6 +28,8 @@ defmodule Dogo.Beaches.Beach do
     field :amenities, :map, default: %{}
     field :municipality, :string
 
+    belongs_to :island, Dogo.Geo.Island
+
     # Popunjava ga prostorni upit, ne baza.
     field :distance_m, :float, virtual: true
 
