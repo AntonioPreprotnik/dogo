@@ -13,6 +13,8 @@ defmodule Dogo.Application do
       {DNSCluster, query: Application.get_env(:dogo, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: Dogo.PubSub},
       {Oban, Application.fetch_env!(:dogo, Oban)},
+      Dogo.Geo.PlaceCache,
+      {Dogo.Geo.RateLimiter, Application.get_env(:dogo, :nominatim_rate_limiter, [])},
       # Start a worker by calling: Dogo.Worker.start_link(arg)
       # {Dogo.Worker, arg},
       # Start to serve requests, typically the last entry

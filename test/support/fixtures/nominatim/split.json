@@ -1,0 +1,33 @@
+[
+  {
+    "place_id": 108340861,
+    "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+    "osm_type": "relation",
+    "osm_id": 1848017,
+    "lat": "43.5116383",
+    "lon": "16.4399659",
+    "category": "boundary",
+    "type": "administrative",
+    "place_rank": 16,
+    "importance": 0.6197,
+    "addresstype": "city",
+    "name": "Split",
+    "display_name": "Split, Grad Split, Splitsko-dalmatinska županija, 21000, Hrvatska",
+    "address": {
+      "city": "Split",
+      "county": "Splitsko-dalmatinska županija",
+      "postcode": "21000",
+      "country": "Hrvatska",
+      "country_code": "hr"
+    }
+  },
+  {
+    "place_id": 24019516,
+    "osm_type": "node",
+    "osm_id": 2419516,
+    "lat": "43.5088",
+    "lon": "16.4405",
+    "name": "Splitska luka",
+    "display_name": "Splitska luka, Split, Splitsko-dalmatinska županija, Hrvatska"
+  }
+]

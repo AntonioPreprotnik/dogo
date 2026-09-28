@@ -27,6 +27,16 @@ config :dogo, Oban, testing: :manual
 # Overpass klijent je mockiran Moxom.
 config :dogo, :overpass_client, Dogo.OverpassMock
 
+# Geokoder je mockiran Moxom; testovi Nominatim klijenta idu kroz Req.Test.
+config :dogo, :geocoder, Dogo.GeocoderMock
+
+config :dogo, :nominatim_req_options,
+  plug: {Req.Test, Dogo.Geo.Geocoder.Nominatim},
+  retry: false
+
+# Bez cekanja od sekunde po upitu; sam mehanizam se testira izravno.
+config :dogo, :nominatim_rate_limiter, interval_ms: 0
+
 # Overpass: sav promet ide kroz Req.Test plug, pa testovi nikad ne diraju
 # mrežu. Backoff je nula da retry testovi ne traju sekundama.
 config :dogo, :overpass_req_options,

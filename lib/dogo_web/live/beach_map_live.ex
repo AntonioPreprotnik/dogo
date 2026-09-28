@@ -17,6 +17,7 @@ defmodule DogoWeb.BeachMapLive do
   use DogoWeb, :live_view
 
   alias Dogo.Beaches
+  alias Dogo.Geo.Geocoder
   alias DogoWeb.BeachFilters
   alias DogoWeb.GeoJSON
 
@@ -31,6 +32,9 @@ defmodule DogoWeb.BeachMapLive do
   # Zoom na koji karta odleti kad korisnik odabere plažu iz liste.
   @focus_zoom 14
 
+  # Mjesto je šire od plaže, pa se na njega gleda iz veće visine.
+  @place_zoom 12
+
   @impl true
   def mount(_params, _session, socket) do
     {:ok,
@@ -44,7 +48,10 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:center, nil)
      |> assign(:zoom, nil)
      |> assign(:user_location, nil)
-     |> assign(:geolocation, :pending)}
+     |> assign(:geolocation, :pending)
+     |> assign(:place_query, "")
+     |> assign(:places, [])
+     |> assign(:place_search, :idle)}
   end
 
   @impl true
@@ -98,6 +105,35 @@ defmodule DogoWeb.BeachMapLive do
     {:noreply, assign(socket, :geolocation, :unavailable)}
   end
 
+  def handle_event("search_place", %{"q" => query}, socket) do
+    socket = assign(socket, :place_query, query)
+
+    if String.length(String.trim(query)) < 3 do
+      {:noreply, socket |> assign(:places, []) |> assign(:place_search, :idle)}
+    else
+      # Pretraga ide asinkrono: Nominatim je udaljen servis i jos ga usporava
+      # ogranicenje od jednog zahtjeva u sekundi. LiveView ne smije stajati.
+      {:noreply,
+       socket
+       |> assign(:place_search, :searching)
+       |> start_async(:search_place, fn -> Geocoder.search(query) end)}
+    end
+  end
+
+  def handle_event("select_place", %{"lat" => lat, "lon" => lon}, socket) do
+    with {latitude, _} <- Float.parse(lat),
+         {longitude, _} <- Float.parse(lon) do
+      {:noreply,
+       socket
+       |> assign(:places, [])
+       |> assign(:place_query, "")
+       |> assign(:place_search, :idle)
+       |> push_event("fly_to", %{lon: longitude, lat: latitude, zoom: @place_zoom})}
+    else
+      _ -> {:noreply, socket}
+    end
+  end
+
   def handle_event("filter", params, socket) do
     {:noreply, patch_to(socket, BeachFilters.from_form(params))}
   end
@@ -117,6 +153,22 @@ defmodule DogoWeb.BeachMapLive do
          |> assign(:selected_id, beach.id)
          |> push_event("fly_to", %{lon: lon, lat: lat, zoom: @focus_zoom})}
     end
+  end
+
+  @impl true
+  def handle_async(:search_place, {:ok, {:ok, places}}, socket) do
+    {:noreply,
+     socket
+     |> assign(:places, places)
+     |> assign(:place_search, if(places == [], do: :empty, else: :idle))}
+  end
+
+  def handle_async(:search_place, {:ok, {:error, _reason}}, socket) do
+    {:noreply, socket |> assign(:places, []) |> assign(:place_search, :error)}
+  end
+
+  def handle_async(:search_place, {:exit, _reason}, socket) do
+    {:noreply, socket |> assign(:places, []) |> assign(:place_search, :error)}
   end
 
   # Upit se vrti tek kad karta javi svoje granice. Do tada nemamo sto pitati.
@@ -317,13 +369,60 @@ defmodule DogoWeb.BeachMapLive do
         </button>
       </form>
 
-      <p
+      <div
         :if={@geolocation in [:denied, :unavailable]}
-        data-role="geolocation-notice"
-        class="rounded-lg border border-base-300 bg-base-200/60 px-3 py-2 text-sm text-base-content/70"
+        data-role="place-fallback"
+        class="space-y-2 rounded-lg border border-base-300 bg-base-200/60 px-3 py-3"
       >
-        {geolocation_message(@geolocation)}
-      </p>
+        <p data-role="geolocation-notice" class="text-sm text-base-content/70">
+          {geolocation_message(@geolocation)}
+        </p>
+
+        <form phx-change="search_place" phx-submit="search_place" class="relative">
+          <label for="place-query" class="sr-only">Pretraži mjesto</label>
+          <input
+            id="place-query"
+            type="text"
+            name="q"
+            value={@place_query}
+            autocomplete="off"
+            placeholder="Upiši mjesto, npr. Split"
+            phx-debounce="400"
+            class="w-full rounded-lg border border-base-300 bg-base-100 px-3 py-2 text-sm"
+          />
+
+          <p :if={@place_search == :searching} class="mt-1 text-xs text-base-content/60">
+            Tražim…
+          </p>
+          <p :if={@place_search == :empty} class="mt-1 text-xs text-base-content/60">
+            Nema mjesta s tim imenom u Hrvatskoj.
+          </p>
+          <p :if={@place_search == :error} class="mt-1 text-xs text-warning">
+            Pretraga mjesta trenutno ne radi. Pomakni kartu ručno.
+          </p>
+
+          <ul
+            :if={@places != []}
+            class="mt-2 divide-y divide-base-300 overflow-hidden rounded-lg border border-base-300 bg-base-100"
+          >
+            <li :for={place <- @places}>
+              <button
+                type="button"
+                phx-click="select_place"
+                phx-value-lat={place_lat(place)}
+                phx-value-lon={place_lon(place)}
+                data-role="place-result"
+                class="block w-full px-3 py-2 text-left text-sm hover:bg-base-200"
+              >
+                <span class="font-medium">{place.name}</span>
+                <span :if={place.description} class="block text-xs text-base-content/60">
+                  {place.description}
+                </span>
+              </button>
+            </li>
+          </ul>
+        </form>
+      </div>
 
       <div class="relative lg:grid lg:grid-cols-[1fr_20rem] lg:gap-4">
         <div
@@ -434,13 +533,14 @@ defmodule DogoWeb.BeachMapLive do
     """
   end
 
+  defp place_lat(%{point: %Geo.Point{coordinates: {_lon, lat}}}), do: to_string(lat)
+  defp place_lon(%{point: %Geo.Point{coordinates: {lon, _lat}}}), do: to_string(lon)
+
   defp geolocation_message(:denied),
-    do:
-      "Bez tvoje lokacije mjerimo udaljenost od sredine karte. " <>
-        "Pomakni kartu na mjesto koje te zanima."
+    do: "Bez tvoje lokacije mjerimo udaljenost od sredine karte. Upiši mjesto ili pomakni kartu."
 
   defp geolocation_message(:unavailable),
-    do: "Ovaj preglednik ne nudi lokaciju, pa mjerimo udaljenost od sredine karte."
+    do: "Ovaj preglednik ne nudi lokaciju. Upiši mjesto ili pomakni kartu."
 
   defp geolocation_message(_), do: nil
 
