@@ -21,6 +21,13 @@ config :dogo, DogoWeb.Endpoint,
   secret_key_base: "Urb04cZWL8q5c5SUC+BY7CdauBxIT/50jBiASqhQILt1RlY39Z1tXnFYkRY3X0/e",
   server: false
 
+# Overpass: sav promet ide kroz Req.Test plug, pa testovi nikad ne diraju
+# mrežu. Backoff je nula da retry testovi ne traju sekundama.
+config :dogo, :overpass_req_options,
+  plug: {Req.Test, Dogo.Import.Overpass.HTTP},
+  retry_delay: 0,
+  max_retries: 3
+
 # In test we don't send emails
 config :dogo, Dogo.Mailer, adapter: Swoosh.Adapters.Test
 

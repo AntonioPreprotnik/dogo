@@ -1,0 +1,28 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.1 084b4234",
+  "elements": [
+    {
+      "type": "way",
+      "id": 234567891,
+      "bounds": { "minlat": 43.5080, "minlon": 16.4260, "maxlat": 43.5090, "maxlon": 16.4280 },
+      "geometry": [
+        { "lat": 43.508, "lon": 16.426 },
+        { "lat": 43.509, "lon": 16.426 },
+        { "lat": 43.509, "lon": 16.428 },
+        { "lat": 43.508, "lon": 16.428 },
+        { "lat": 43.508, "lon": 16.426 }
+      ],
+      "tags": { "natural": "beach", "name": "Žnjan" }
+    },
+    {
+      "type": "way",
+      "id": 678912345,
+      "geometry": [
+        { "lat": 43.51, "lon": 16.43 },
+        { "lat": 43.511, "lon": 16.431 }
+      ],
+      "tags": { "natural": "beach", "name": "Otvorena linija" }
+    }
+  ]
+}
