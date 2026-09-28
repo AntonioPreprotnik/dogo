@@ -14,6 +14,7 @@ defmodule Dogo.Application do
       {Phoenix.PubSub, name: Dogo.PubSub},
       {Oban, Application.fetch_env!(:dogo, Oban)},
       Dogo.Geo.PlaceCache,
+      Dogo.Geo.RouteCache,
       {Dogo.Geo.RateLimiter, Application.get_env(:dogo, :nominatim_rate_limiter, [])},
       # Start a worker by calling: Dogo.Worker.start_link(arg)
       # {Dogo.Worker, arg},

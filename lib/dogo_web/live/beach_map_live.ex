@@ -19,6 +19,7 @@ defmodule DogoWeb.BeachMapLive do
   alias Dogo.Beaches
   alias Dogo.Geo.Geocoder
   alias Dogo.Geo.Islands
+  alias Dogo.Geo.Routing
   alias DogoWeb.BeachFilters
   alias DogoWeb.GeoJSON
 
@@ -35,6 +36,10 @@ defmodule DogoWeb.BeachMapLive do
 
   # Mjesto je šire od plaže, pa se na njega gleda iz veće visine.
   @place_zoom 12
+
+  # Za koliko plaža se traži vrijeme vožnje. Servis je besplatan demo, a i
+  # korisnik ionako gleda vrh liste.
+  @driving_limit 10
 
   @impl true
   def mount(_params, _session, socket) do
@@ -55,7 +60,9 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:places, [])
      |> assign(:place_search, :idle)
      |> assign(:tiles_ok?, true)
-     |> assign(:map_width_px, nil)}
+     |> assign(:map_width_px, nil)
+     |> assign(:driving, %{})
+     |> assign(:driving_for, [])}
   end
 
   @impl true
@@ -163,6 +170,26 @@ defmodule DogoWeb.BeachMapLive do
     end
   end
 
+  # Vrijeme voznje stize naknadno. Lista je vec na ekranu sa zracnom
+  # udaljenoscu; ovo je dodatak, ne uvjet.
+  def handle_async(:driving, {:ok, {ids, {:ok, legs}}}, socket) do
+    if ids == socket.assigns.driving_for do
+      {:noreply, assign(socket, :driving, Map.new(Enum.zip(ids, legs)))}
+    else
+      # Korisnik je u meduvremenu pomaknuo kartu; ovaj odgovor vise ne opisuje
+      # ono sto je na ekranu.
+      {:noreply, socket}
+    end
+  end
+
+  def handle_async(:driving, {:ok, {_ids, {:error, _reason}}}, socket) do
+    {:noreply, assign(socket, :driving, %{})}
+  end
+
+  def handle_async(:driving, {:exit, _reason}, socket) do
+    {:noreply, assign(socket, :driving, %{})}
+  end
+
   @impl true
   def handle_async(:search_place, {:ok, {:ok, places}}, socket) do
     {:noreply,
@@ -207,6 +234,7 @@ defmodule DogoWeb.BeachMapLive do
           clustered?: false
         )
         |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
+        |> request_driving(reference)
 
       # Previse plaza da bi se svaka poslala: cijeli Jadran je oko 900 KB
       # GeoJSON-a po pomaku. Umjesto odrezanog skupa saljemo sazetak po mrezi,
@@ -224,6 +252,7 @@ defmodule DogoWeb.BeachMapLive do
           clustered?: true
         )
         |> push_event("clusters", %{geojson: GeoJSON.cluster_collection(clusters)})
+        |> request_driving(reference)
     end
   end
 
@@ -280,6 +309,43 @@ defmodule DogoWeb.BeachMapLive do
     do: {location, false}
 
   defp reference_point(%{assigns: %{center: center}}), do: {center, true}
+
+  # OSRM se pita samo kad se vrh liste stvarno promijenio. Bez toga bi svaki
+  # pomak karte bio novi zahtjev prema besplatnom servisu, a cesto s istim
+  # odgovorom.
+  defp request_driving(socket, nil), do: socket
+
+  defp request_driving(socket, origin) do
+    top = Enum.take(socket.assigns.beaches, @driving_limit)
+    ids = Enum.map(top, & &1.id)
+
+    cond do
+      ids == [] ->
+        assign(socket, driving: %{}, driving_for: [])
+
+      ids == socket.assigns.driving_for ->
+        socket
+
+      true ->
+        points = Enum.map(top, & &1.geom)
+
+        socket
+        |> assign(:driving_for, ids)
+        |> start_async(:driving, fn -> {ids, safe_table(origin, points)} end)
+    end
+  end
+
+  # Iznimka u rutiranju se hvata ovdje, a ne prepusta Tasku. Pad zadatka ispise
+  # poruku iznimke u log, a ona moze sadrzavati koordinate polazista — dakle
+  # korisnikovu lokaciju (E4-S1). Uz to je ovo neobavezna informacija; njezin
+  # pad ne treba izgledati kao incident.
+  defp safe_table(origin, points) do
+    Routing.table(origin, points)
+  rescue
+    exception -> {:error, exception.__struct__}
+  catch
+    kind, _reason -> {:error, kind}
+  end
 
   defp patch_to(socket, filters) do
     push_patch(socket, to: url_for(socket, filters))
@@ -556,12 +622,26 @@ defmodule DogoWeb.BeachMapLive do
                     <.icon name="hero-arrows-right-left" class="size-3" /> preko mora
                   </span>
                 </span>
-                <span
-                  :if={beach.distance_m}
-                  data-role="distance"
-                  class="shrink-0 text-xs tabular-nums text-base-content/60"
-                >
-                  {format_distance(beach.distance_m)}
+                <span class="shrink-0 text-right">
+                  <span
+                    :if={@driving[beach.id]}
+                    data-role="driving"
+                    class="block text-xs font-medium tabular-nums"
+                  >
+                    {format_duration(@driving[beach.id].duration_s)}
+                  </span>
+                  <span
+                    :if={beach.distance_m}
+                    data-role="distance"
+                    class="block text-xs tabular-nums text-base-content/60"
+                    title={
+                      if @driving[beach.id],
+                        do: "Zračna udaljenost",
+                        else: "Zračna udaljenost; vrijeme vožnje nije dostupno"
+                    }
+                  >
+                    {if @driving[beach.id], do: "", else: "≈ "}{format_distance(beach.distance_m)}
+                  </span>
                 </span>
               </button>
             </li>

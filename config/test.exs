@@ -37,6 +37,11 @@ config :dogo, :nominatim_req_options,
 # Bez cekanja od sekunde po upitu; sam mehanizam se testira izravno.
 config :dogo, :nominatim_rate_limiter, interval_ms: 0
 
+# Rutiranje je mockirano Moxom; testovi OSRM klijenta idu kroz Req.Test.
+config :dogo, :routing_client, Dogo.RoutingMock
+
+config :dogo, :osrm_req_options, plug: {Req.Test, Dogo.Geo.Routing.OSRM}, retry: false
+
 # Overpass: sav promet ide kroz Req.Test plug, pa testovi nikad ne diraju
 # mrežu. Backoff je nula da retry testovi ne traju sekundama.
 config :dogo, :overpass_req_options,

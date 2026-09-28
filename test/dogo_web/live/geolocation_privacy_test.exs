@@ -16,6 +16,7 @@ defmodule DogoWeb.GeolocationPrivacyTest do
 
   import Dogo.BeachesFixtures
   import ExUnit.CaptureLog
+  import Mox
   import Phoenix.LiveViewTest
 
   alias Dogo.Beaches.Beach
@@ -35,7 +36,13 @@ defmodule DogoWeb.GeolocationPrivacyTest do
   @longitude "16.4453"
   @user %{"location" => %{"lat" => 43.5041, "lon" => 16.4453}}
 
+  setup :set_mox_from_context
+
   setup do
+    # Rutiranje salje polaziste trecoj strani i zato je i samo predmet ove
+    # provjere: stubamo ga da test mjeri nase logiranje, a ne Moxovu gresku.
+    stub(Dogo.RoutingMock, :table, fn _origin, _destinations -> {:error, :stubbed} end)
+
     level = Logger.level()
     Logger.configure(level: :debug)
     on_exit(fn -> Logger.configure(level: level) end)
@@ -150,5 +157,25 @@ defmodule DogoWeb.GeolocationPrivacyTest do
 
   defp centered_on_user(bounds) do
     %{bounds | "center_lat" => 43.5041, "center_lon" => 16.4453}
+  end
+
+  test "pad rutiranja ne ispise koordinate u log", %{conn: conn} do
+    # Rutiranje dobiva polaziste, dakle korisnikovu lokaciju. Kad padne, poruka
+    # iznimke ne smije zavrsiti u logu s koordinatama.
+    stub(Dogo.RoutingMock, :table, fn origin, _destinations ->
+      raise "ruta nije uspjela za #{inspect(origin)}"
+    end)
+
+    {:ok, view, _html} = live(conn, ~p"/")
+
+    log =
+      capture_log(fn ->
+        render_hook(view, "bounds_changed", @bounds)
+        render_hook(view, "user_located", @user)
+        render_async(view)
+      end)
+
+    refute log =~ @latitude
+    refute log =~ @longitude
   end
 end

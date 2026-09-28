@@ -101,6 +101,22 @@ defmodule DogoWeb.BeachComponents do
   end
 
   @doc """
+  Trajanje vožnje u ljudskom obliku: minute do sat vremena, inače sati.
+  """
+  def format_duration(nil), do: nil
+
+  def format_duration(seconds) when seconds < 3_600 do
+    "#{max(round(seconds / 60), 1)} min"
+  end
+
+  def format_duration(seconds) do
+    hours = div(round(seconds), 3_600)
+    minutes = div(rem(round(seconds), 3_600), 60)
+
+    if minutes == 0, do: "#{hours} h", else: "#{hours} h #{minutes} min"
+  end
+
+  @doc """
   Udaljenost u ljudskom obliku: metri ispod kilometra, inače kilometri.
   """
   def format_distance(nil), do: nil
