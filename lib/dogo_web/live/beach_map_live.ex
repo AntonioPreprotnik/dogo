@@ -51,7 +51,8 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:geolocation, :pending)
      |> assign(:place_query, "")
      |> assign(:places, [])
-     |> assign(:place_search, :idle)}
+     |> assign(:place_search, :idle)
+     |> assign(:tiles_ok?, true)}
   end
 
   @impl true
@@ -97,12 +98,12 @@ defmodule DogoWeb.BeachMapLive do
     {:noreply, assign(socket, :geolocation, :error)}
   end
 
-  def handle_event("geolocation_denied", _params, socket) do
-    {:noreply, assign(socket, :geolocation, :denied)}
+  def handle_event("geolocation_error", %{"reason" => reason}, socket) do
+    {:noreply, assign(socket, :geolocation, geolocation_reason(reason))}
   end
 
-  def handle_event("geolocation_unavailable", _params, socket) do
-    {:noreply, assign(socket, :geolocation, :unavailable)}
+  def handle_event("map_tiles", %{"ok" => ok?}, socket) do
+    {:noreply, assign(socket, :tiles_ok?, ok? == true)}
   end
 
   def handle_event("search_place", %{"q" => query}, socket) do
@@ -369,8 +370,17 @@ defmodule DogoWeb.BeachMapLive do
         </button>
       </form>
 
+      <p
+        :if={not @tiles_ok?}
+        data-role="tiles-notice"
+        role="status"
+        class="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm"
+      >
+        Pozadinska karta se ne učitava. Popis plaža i udaljenosti i dalje rade.
+      </p>
+
       <div
-        :if={@geolocation in [:denied, :unavailable]}
+        :if={@geolocation in [:denied, :unavailable, :timeout, :unknown]}
         data-role="place-fallback"
         class="space-y-2 rounded-lg border border-base-300 bg-base-200/60 px-3 py-3"
       >
@@ -533,6 +543,11 @@ defmodule DogoWeb.BeachMapLive do
     """
   end
 
+  defp geolocation_reason("denied"), do: :denied
+  defp geolocation_reason("unavailable"), do: :unavailable
+  defp geolocation_reason("timeout"), do: :timeout
+  defp geolocation_reason(_other), do: :unknown
+
   defp place_lat(%{point: %Geo.Point{coordinates: {_lon, lat}}}), do: to_string(lat)
   defp place_lon(%{point: %Geo.Point{coordinates: {lon, _lat}}}), do: to_string(lon)
 
@@ -541,6 +556,14 @@ defmodule DogoWeb.BeachMapLive do
 
   defp geolocation_message(:unavailable),
     do: "Ovaj preglednik ne nudi lokaciju. Upiši mjesto ili pomakni kartu."
+
+  defp geolocation_message(:timeout),
+    do:
+      "Lokacija nije stigla na vrijeme. Ako si u zatvorenom, GPS zna šutjeti — " <>
+        "upiši mjesto ili pomakni kartu."
+
+  defp geolocation_message(:unknown),
+    do: "Lokaciju nije bilo moguće dohvatiti. Upiši mjesto ili pomakni kartu."
 
   defp geolocation_message(_), do: nil
 

@@ -4,6 +4,8 @@ import maplibregl from "../../vendor/maplibre-gl.js"
 // phx-update="ignore". Sva komunikacija ide iskljucivo kroz evente.
 const BOUNDS_DEBOUNCE_MS = 300
 const GEOLOCATION_TIMEOUT_MS = 10000
+const TILE_ERROR_GRACE_MS = 2500
+const BOUNDS_FALLBACK_MS = 4000
 const USER_ZOOM = 12
 const SOURCE_ID = "beaches"
 const LAYER_ID = "beaches-circles"
@@ -12,6 +14,11 @@ const escapeHtml = (value) =>
   String(value).replace(/[&<>"']/g, (c) =>
     ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"})[c]
   )
+
+// W3C PositionError: 1 = PERMISSION_DENIED, 2 = POSITION_UNAVAILABLE, 3 = TIMEOUT.
+// Prevodimo ih ovdje, da server ne mora znati nista o toj specifikaciji.
+const geolocationReason = (error) =>
+  ({1: "denied", 2: "unavailable", 3: "timeout"})[error.code] || "unknown"
 
 export default {
   mounted() {
@@ -65,11 +72,22 @@ export default {
       this.map.flyTo({center: [lon, lat], zoom: zoom || this.map.getZoom()})
     })
 
+    this.watchTiles()
     this.locateUser()
+
+    // Ako stil ne uspije, MapLibre nikad ne emitira `load`, pa granice ne bi
+    // nikad stigle na server i lista bi ostala prazna — bas u trenutku kad
+    // korisniku poruka obecava da lista radi. Transform (sredina i zoom)
+    // postoji i bez stila, pa se granice mogu poslati svejedno.
+    this.boundsFallback = setTimeout(() => {
+      if (!this.boundsPushed) this.pushBounds()
+    }, BOUNDS_FALLBACK_MS)
   },
 
   destroyed() {
     clearTimeout(this.boundsTimer)
+    clearTimeout(this.tileTimer)
+    clearTimeout(this.boundsFallback)
     if (this.popup) this.popup.remove()
     if (this.userMarker) this.userMarker.remove()
     if (this.map) this.map.remove()
@@ -77,15 +95,49 @@ export default {
 
   locateUser() {
     if (!navigator.geolocation) {
-      this.pushEvent("geolocation_unavailable", {})
+      this.pushEvent("geolocation_error", {reason: "unavailable"})
       return
     }
 
     navigator.geolocation.getCurrentPosition(
       ({coords}) => this.onLocated(coords),
-      (error) => this.pushEvent("geolocation_denied", {code: error.code}),
+      (error) => this.pushEvent("geolocation_error", {reason: geolocationReason(error)}),
       {enableHighAccuracy: false, timeout: GEOLOCATION_TIMEOUT_MS, maximumAge: 60000}
     )
+  },
+
+  // MapLibre javlja greske i za pojedinacne ploce i za cijeli stil. Jedna
+  // promasena ploca nije vrijedna poruke korisniku, pa cekamo da se karta
+  // smiri (`idle`) i tek onda presudimo.
+  watchTiles() {
+    this.tileErrors = 0
+
+    this.map.on("error", (event) => {
+      if (event.sourceId === "beaches") return
+
+      this.tileErrors += 1
+      clearTimeout(this.tileTimer)
+      this.tileTimer = setTimeout(() => this.reportTiles(), TILE_ERROR_GRACE_MS)
+    })
+
+    this.map.on("idle", () => {
+      if (this.tileErrors > 0 || this.tilesReportedBroken) {
+        clearTimeout(this.tileTimer)
+        this.tileErrors = 0
+        this.reportTiles()
+      }
+    })
+  },
+
+  reportTiles() {
+    // `areTilesLoaded()` je presuda: ako su sve trazene ploce stigle, greske
+    // su bile prolazne i korisnik o njima ne treba znati.
+    const broken = !this.map.areTilesLoaded() || !this.map.isStyleLoaded()
+
+    if (broken !== this.tilesReportedBroken) {
+      this.tilesReportedBroken = broken
+      this.pushEvent("map_tiles", {ok: !broken})
+    }
   },
 
   onLocated({latitude, longitude}) {
@@ -162,6 +214,7 @@ export default {
   },
 
   pushBounds() {
+    this.boundsPushed = true
     const bounds = this.map.getBounds()
 
     const center = this.map.getCenter()
