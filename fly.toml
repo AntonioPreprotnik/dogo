@@ -1,0 +1,41 @@
+# fly.toml — Dogo
+#
+# Create the app and its PostGIS-enabled database once with:
+#
+#   fly launch --no-deploy --copy-config
+#   fly postgres create --name dogo-db --region fra
+#   fly postgres attach dogo-db
+#   fly postgres connect -a dogo-db -d dogo -c "CREATE EXTENSION IF NOT EXISTS postgis"
+#   fly secrets set SECRET_KEY_BASE=$(mix phx.gen.secret)
+app = "dogo"
+primary_region = "fra"
+kill_signal = "SIGTERM"
+
+[build]
+
+[deploy]
+  release_command = "/app/bin/migrate"
+
+[env]
+  PHX_HOST = "dogo.fly.dev"
+  PORT = "8080"
+
+[http_service]
+  internal_port = 8080
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "10s"
+    method = "GET"
+    path = "/health"
+
+[[vm]]
+  cpu_kind = "shared"
+  cpus = 1
+  memory_mb = 512

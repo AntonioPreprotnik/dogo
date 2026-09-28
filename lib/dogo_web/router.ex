@@ -20,6 +20,12 @@ defmodule DogoWeb.Router do
     get "/", PageController, :home
   end
 
+  scope "/", DogoWeb do
+    pipe_through :api
+
+    get "/health", HealthController, :index
+  end
+
   # Other scopes may use custom stacks.
   # scope "/api", DogoWeb do
   #   pipe_through :api
