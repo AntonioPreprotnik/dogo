@@ -81,6 +81,40 @@ defmodule Dogo.Import.Overpass.ParserTest do
     end
   end
 
+  describe "parse/1 na stvarnom snimljenom odgovoru" do
+    # Snimljeno s overpass-api.de 2026-09-28, bbox oko Splita. Rucno pisani
+    # fixture pokriva rubne slucajeve, ovaj cuva stvarni oblik odgovora.
+    setup do
+      {:ok, elements} = Parser.parse(OverpassFixtures.decoded("beaches_split_real"))
+      %{elements: elements}
+    end
+
+    test "svi elementi imaju osm_id i centroid u Hrvatskoj", %{elements: elements} do
+      assert length(elements) == 8
+
+      for element <- elements do
+        assert element.osm_id =~ ~r{^(node|way|relation)/\d+$}
+        assert %Geo.Point{srid: 4326} = element.centroid
+        assert Dogo.Geo.within_croatia?(element.centroid)
+      end
+    end
+
+    test "cita imena i tagove kakvi stvarno dolaze iz OSM-a", %{elements: elements} do
+      names = elements |> Enum.map(& &1.name) |> Enum.reject(&is_nil/1)
+
+      assert "Plaža Ježinac" in names
+      assert "Žnjan" in names
+
+      jezinac = Enum.find(elements, &(&1.name == "Plaža Ježinac"))
+      assert jezinac.tags["surface"] == "pebblestone"
+      assert jezinac.tags["natural"] == "beach"
+    end
+
+    test "plaze bez imena se ne odbacuju", %{elements: elements} do
+      assert Enum.any?(elements, &is_nil(&1.name))
+    end
+  end
+
   describe "parse/1 na neispravnom odgovoru" do
     test "Overpass remark je greška, ne prazan rezultat" do
       body = %{"elements" => [], "remark" => "runtime error: Query timed out"}

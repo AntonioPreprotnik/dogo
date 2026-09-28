@@ -1,0 +1,118 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.11 87bfad18",
+  "osm3s": {
+    "timestamp_osm_base": "2026-09-28T14:59:36Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "way",
+      "id": 84533701,
+      "center": {
+        "lat": 43.5035702,
+        "lon": 16.4166951
+      },
+      "tags": {
+        "alt_name": "Plaža Kaštelet Ježinac;Beach Kastelet;Beach Kastelet Jezinac",
+        "name": "Plaža Ježinac",
+        "name:de": "Strand Jezinac",
+        "name:en": "Beach Jezinac",
+        "natural": "beach",
+        "surface": "pebblestone"
+      }
+    },
+    {
+      "type": "way",
+      "id": 84533704,
+      "center": {
+        "lat": 43.5032364,
+        "lon": 16.4149241
+      },
+      "tags": {
+        "alt_name": "Obojena Svjetlost;Plaža Kaštelet Obojena;Beach Kastelet",
+        "name": "Plaža Obojena",
+        "name:de": "Strand Obojena",
+        "name:en": "Beach Obojena",
+        "natural": "beach",
+        "surface": "pebblestone"
+      }
+    },
+    {
+      "type": "way",
+      "id": 110897287,
+      "center": {
+        "lat": 43.5030301,
+        "lon": 16.4134407
+      },
+      "tags": {
+        "natural": "beach"
+      }
+    },
+    {
+      "type": "way",
+      "id": 120677639,
+      "center": {
+        "lat": 43.5038533,
+        "lon": 16.4180822
+      },
+      "tags": {
+        "alt_name": "Beach Ježinac",
+        "name": "Ježinac",
+        "natural": "beach"
+      }
+    },
+    {
+      "type": "way",
+      "id": 121540735,
+      "center": {
+        "lat": 43.5148531,
+        "lon": 16.414048
+      },
+      "tags": {
+        "natural": "beach",
+        "surface": "pebblestone"
+      }
+    },
+    {
+      "type": "way",
+      "id": 122492637,
+      "center": {
+        "lat": 43.5031844,
+        "lon": 16.4220408
+      },
+      "tags": {
+        "name": "Zvončac",
+        "name:de": "Strand Zvončac",
+        "name:en": "Beach Zvončac",
+        "natural": "beach",
+        "surface": "pebblestone"
+      }
+    },
+    {
+      "type": "way",
+      "id": 122516392,
+      "center": {
+        "lat": 43.5027382,
+        "lon": 16.4235147
+      },
+      "tags": {
+        "dog": "yes",
+        "natural": "beach"
+      }
+    },
+    {
+      "type": "way",
+      "id": 142955197,
+      "center": {
+        "lat": 43.5022989,
+        "lon": 16.4779215
+      },
+      "tags": {
+        "alt_name": "plaža žnjan;beach znjan",
+        "name": "Žnjan",
+        "natural": "beach"
+      }
+    }
+  ]
+}

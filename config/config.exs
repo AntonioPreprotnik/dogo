@@ -14,6 +14,13 @@ config :dogo,
 # PostGIS: teach Postgrex to encode/decode geometry columns as Geo structs.
 config :dogo, Dogo.Repo, types: Dogo.PostgrexTypes
 
+# Oban: uvoz plaza je jedini posao zasad, i namjerno ide u jednom radniku
+# kako se ne bi paralelno gadao Overpass.
+config :dogo, Oban,
+  repo: Dogo.Repo,
+  queues: [imports: 1],
+  plugins: [{Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 7}]
+
 # Configure the endpoint
 config :dogo, DogoWeb.Endpoint,
   url: [host: "localhost"],

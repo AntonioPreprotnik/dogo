@@ -21,6 +21,12 @@ config :dogo, DogoWeb.Endpoint,
   secret_key_base: "Urb04cZWL8q5c5SUC+BY7CdauBxIT/50jBiASqhQILt1RlY39Z1tXnFYkRY3X0/e",
   server: false
 
+# Oban ne pokrece poslove u testovima; provjeravamo enqueue i perform/1.
+config :dogo, Oban, testing: :manual
+
+# Overpass klijent je mockiran Moxom.
+config :dogo, :overpass_client, Dogo.OverpassMock
+
 # Overpass: sav promet ide kroz Req.Test plug, pa testovi nikad ne diraju
 # mrežu. Backoff je nula da retry testovi ne traju sekundama.
 config :dogo, :overpass_req_options,
