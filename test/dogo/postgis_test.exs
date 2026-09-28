@@ -42,7 +42,7 @@ defmodule Dogo.PostgisTest do
         dubrovnik
       ])
 
-    # Split -> Dubrovnik is roughly 157 km as the crow flies.
-    assert_in_delta metres / 1000, 157, 5
+    # Split -> Dubrovnik is roughly 165 km as the crow flies.
+    assert_in_delta metres / 1000, 165, 2
   end
 end
