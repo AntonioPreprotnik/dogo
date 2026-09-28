@@ -2,9 +2,10 @@ import Config
 
 # Configure your database
 config :dogo, Dogo.Repo,
-  username: "postgres",
-  password: "postgres",
-  hostname: "localhost",
+  username: System.get_env("PGUSER", "postgres"),
+  password: System.get_env("PGPASSWORD", "postgres"),
+  hostname: System.get_env("PGHOST", "localhost"),
+  port: String.to_integer(System.get_env("PGPORT", "5432")),
   database: "dogo_dev",
   stacktrace: true,
   show_sensitive_data_on_connection_error: true,

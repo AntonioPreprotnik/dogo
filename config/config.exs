@@ -11,6 +11,9 @@ config :dogo,
   ecto_repos: [Dogo.Repo],
   generators: [timestamp_type: :utc_datetime]
 
+# PostGIS: teach Postgrex to encode/decode geometry columns as Geo structs.
+config :dogo, Dogo.Repo, types: Dogo.PostgrexTypes
+
 # Configure the endpoint
 config :dogo, DogoWeb.Endpoint,
   url: [host: "localhost"],
