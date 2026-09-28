@@ -2,6 +2,7 @@
    https://tailwindcss.com/docs/configuration */
 
 @import "tailwindcss" source(none);
+@import "../vendor/maplibre-gl.css";
 @source "../css";
 @source "../js";
 @source "../../lib/dogo_web";

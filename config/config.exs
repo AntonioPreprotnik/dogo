@@ -21,6 +21,10 @@ config :dogo, Oban,
   queues: [imports: 1],
   plugins: [{Oban.Plugins.Pruner, max_age: 60 * 60 * 24 * 7}]
 
+# Pozadinske karte. OpenFreeMap ne trazi API kljuc; provider se mijenja
+# varijablom okoline, sto je mitigacija za rizik "tile provider ukine free tier".
+config :dogo, :map_style_url, "https://tiles.openfreemap.org/styles/liberty"
+
 # Configure the endpoint
 config :dogo, DogoWeb.Endpoint,
   url: [host: "localhost"],

@@ -16,6 +16,10 @@ import Config
 #
 # Alternatively, you can use `mix phx.gen.release` to generate a `bin/server`
 # script that automatically sets the env var above.
+if style_url = System.get_env("MAP_STYLE_URL") do
+  config :dogo, :map_style_url, style_url
+end
+
 if System.get_env("PHX_SERVER") do
   config :dogo, DogoWeb.Endpoint, server: true
 end

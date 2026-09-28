@@ -17,7 +17,7 @@ defmodule DogoWeb.Router do
   scope "/", DogoWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", BeachMapLive, :index
   end
 
   scope "/", DogoWeb do

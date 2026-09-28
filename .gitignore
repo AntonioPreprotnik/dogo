@@ -31,6 +31,15 @@ dogo-*.tar
 # Ignore digested assets cache.
 /priv/static/cache_manifest.json
 
+# `mix phx.digest` sipa digestirane i gzipane kopije uz izvorne datoteke.
+# Umjesto lovljenja obrazaca s hashevima, dopustamo samo izvorne datoteke.
+/priv/static/*
+!/priv/static/favicon.ico
+!/priv/static/robots.txt
+!/priv/static/images/
+/priv/static/images/*
+!/priv/static/images/logo.svg
+
 # In case you use Node.js/npm, you want to ignore these.
 npm-debug.log
 /assets/node_modules/
