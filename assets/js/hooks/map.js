@@ -3,6 +3,8 @@ import maplibregl from "../../vendor/maplibre-gl.js"
 // Karta se ne smije ponovno crtati na svaki LiveView render, pa kontejner nosi
 // phx-update="ignore". Sva komunikacija ide iskljucivo kroz evente.
 const BOUNDS_DEBOUNCE_MS = 300
+const GEOLOCATION_TIMEOUT_MS = 10000
+const USER_ZOOM = 12
 const SOURCE_ID = "beaches"
 const LAYER_ID = "beaches-circles"
 
@@ -62,12 +64,55 @@ export default {
     this.handleEvent("fly_to", ({lon, lat, zoom}) => {
       this.map.flyTo({center: [lon, lat], zoom: zoom || this.map.getZoom()})
     })
+
+    this.locateUser()
   },
 
   destroyed() {
     clearTimeout(this.boundsTimer)
     if (this.popup) this.popup.remove()
+    if (this.userMarker) this.userMarker.remove()
     if (this.map) this.map.remove()
+  },
+
+  locateUser() {
+    if (!navigator.geolocation) {
+      this.pushEvent("geolocation_unavailable", {})
+      return
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      ({coords}) => this.onLocated(coords),
+      (error) => this.pushEvent("geolocation_denied", {code: error.code}),
+      {enableHighAccuracy: false, timeout: GEOLOCATION_TIMEOUT_MS, maximumAge: 60000}
+    )
+  },
+
+  onLocated({latitude, longitude}) {
+    // Marker crtamo lokalno. Server ga ne mora vratiti, pa lokacija ne putuje
+    // mrezom vise nego sto mora.
+    this.showUserMarker(longitude, latitude)
+
+    this.map.flyTo({center: [longitude, latitude], zoom: USER_ZOOM})
+
+    // Ugnijezdeno pod "location" jer je taj kljuc u :filter_parameters, pa
+    // LiveView logger ispise [FILTERED] umjesto koordinata.
+    this.pushEvent("user_located", {location: {lat: latitude, lon: longitude}})
+  },
+
+  showUserMarker(lon, lat) {
+    if (this.userMarker) {
+      this.userMarker.setLngLat([lon, lat])
+      return
+    }
+
+    const element = document.createElement("div")
+    element.className = "user-marker"
+    element.setAttribute("aria-label", "Tvoja lokacija")
+
+    this.userMarker = new maplibregl.Marker({element})
+      .setLngLat([lon, lat])
+      .addTo(this.map)
   },
 
   bindPopup() {

@@ -88,8 +88,10 @@ defmodule Dogo.Beaches do
       fragment("?::geography <-> ?::geography", type(^point, Geo.PostGIS.Geometry), b.geom)
     )
     |> limit(^Keyword.get(opts, :limit, @default_limit))
-    |> Repo.all()
+    |> Repo.all(repo_opts(opts))
   end
+
+  defp repo_opts(opts), do: Keyword.take(opts, [:log])
 
   @doc """
   Plaže unutar vidljivog dijela karte.
@@ -106,6 +108,10 @@ defmodule Dogo.Beaches do
 
   Opcija `:within_m` reže rezultat na radijus oko `:near`. Bez `:near` se
   ignorira — nema od čega mjeriti.
+
+  Opcija `log: false` gasi Ecto log za taj upit. Koristi se kad je `:near`
+  korisnikova lokacija: Ecto inače ispiše parametre upita, pa bi koordinate
+  završile u logu (E4-S1).
   """
   @spec within_bbox({float(), float(), float(), float()}, query_opts()) ::
           {:ok, [Beach.t()]} | {:too_many, [Beach.t()]}
@@ -129,7 +135,7 @@ defmodule Dogo.Beaches do
       |> apply_radius(Keyword.get(opts, :near), Keyword.get(opts, :within_m))
       |> order_from(Keyword.get(opts, :near))
       |> limit(^(limit + 1))
-      |> Repo.all()
+      |> Repo.all(repo_opts(opts))
 
     if length(beaches) > limit do
       {:too_many, Enum.take(beaches, limit)}

@@ -9,6 +9,10 @@ defmodule DogoWeb.BeachMapLive do
   Cijelo stanje pretrage — filteri i pozicija karte — živi u query stringu.
   `handle_params/3` je jedini put kojim filteri ulaze u socket, pa je svaki
   prikaz djeljiv linkom i preživi osvježavanje.
+
+  Korisnikova lokacija je iznimka: ona **ne ide u URL**, ne sprema se u bazu i
+  ne smije završiti u logovima. Živi samo u assignima ovog procesa, dok traje
+  sesija. Vidi `handle_event("user_located", ...)`.
   """
   use DogoWeb, :live_view
 
@@ -38,7 +42,9 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:selected_id, nil)
      |> assign(:bbox, nil)
      |> assign(:center, nil)
-     |> assign(:zoom, nil)}
+     |> assign(:zoom, nil)
+     |> assign(:user_location, nil)
+     |> assign(:geolocation, :pending)}
   end
 
   @impl true
@@ -64,9 +70,32 @@ defmodule DogoWeb.BeachMapLive do
       |> assign(:zoom, params["zoom"])
       |> refresh()
 
-    # `replace: true`: link ostaje djeljiv, a povijest preglednika se ne puni
-    # svakim pomakom karte.
-    {:noreply, push_patch(socket, to: url_for(socket, socket.assigns.filters), replace: true)}
+    {:noreply, maybe_push_position(socket)}
+  end
+
+  # Koordinate stizu ugnijezdene pod "location", jer je taj kljuc u
+  # :filter_parameters — LiveView logger ispise [FILTERED] umjesto brojeva.
+  def handle_event("user_located", %{"location" => %{"lat" => lat, "lon" => lon}}, socket)
+      when is_number(lat) and is_number(lon) do
+    location = %Geo.Point{coordinates: {lon, lat}, srid: 4326}
+
+    {:noreply,
+     socket
+     |> assign(:user_location, location)
+     |> assign(:geolocation, :located)
+     |> refresh()}
+  end
+
+  def handle_event("user_located", _params, socket) do
+    {:noreply, assign(socket, :geolocation, :error)}
+  end
+
+  def handle_event("geolocation_denied", _params, socket) do
+    {:noreply, assign(socket, :geolocation, :denied)}
+  end
+
+  def handle_event("geolocation_unavailable", _params, socket) do
+    {:noreply, assign(socket, :geolocation, :unavailable)}
   end
 
   def handle_event("filter", params, socket) do
@@ -94,9 +123,14 @@ defmodule DogoWeb.BeachMapLive do
   defp refresh(%{assigns: %{bbox: nil}} = socket), do: socket
 
   defp refresh(socket) do
-    %{bbox: bbox, center: center, filters: filters} = socket.assigns
+    %{bbox: bbox, filters: filters} = socket.assigns
+    {reference, log?} = reference_point(socket)
 
-    opts = Keyword.put(BeachFilters.to_opts(filters), :near, center)
+    opts =
+      filters
+      |> BeachFilters.to_opts()
+      |> Keyword.put(:near, reference)
+      |> Keyword.put(:log, log?)
 
     {truncated?, beaches} =
       case Beaches.within_bbox(bbox, opts) do
@@ -112,6 +146,43 @@ defmodule DogoWeb.BeachMapLive do
     )
     |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
   end
+
+  # Dok je sredina karte prakticki korisnikova lokacija, pozicija se ne upisuje
+  # u URL — inace bi automatsko centriranje na geolokaciju stavilo njegove
+  # koordinate u adresnu traku i u povijest preglednika.
+  #
+  # Pravilo je namjerno na serveru i vezano uz *stanje*, ne uz *dogadaj*. Prva
+  # verzija je oznacavala programski pomak zastavicom u hooku, ali `flyTo`
+  # emitira jos jedan `moveend` nakon animacije, pa je drugi event ipak
+  # upisivao lokaciju. Provjera stanja je imuna na takav redoslijed.
+  #
+  # `replace: true`: link ostaje djeljiv, a povijest preglednika se ne puni
+  # svakim pomakom karte.
+  defp maybe_push_position(socket) do
+    if at_user_location?(socket.assigns.center, socket.assigns.user_location) do
+      socket
+    else
+      push_patch(socket, to: url_for(socket, socket.assigns.filters), replace: true)
+    end
+  end
+
+  # 0.002 stupnja je oko 200 m. Pokriva zaokruzivanje i sitno smirivanje
+  # animacije, a cim korisnik stvarno odmakne kartu, URL opet prati pogled.
+  defp at_user_location?(%Geo.Point{coordinates: {lon, lat}}, %Geo.Point{
+         coordinates: {ulon, ulat}
+       }) do
+    abs(lon - ulon) < 0.002 and abs(lat - ulat) < 0.002
+  end
+
+  defp at_user_location?(_center, _user_location), do: false
+
+  # Kad znamo gdje je korisnik, udaljenosti se mjere od njega — to je i jedini
+  # broj koji ga zanima. Tada se Ecto log gasi, jer bi inace ispisao njegove
+  # koordinate kao parametre upita.
+  defp reference_point(%{assigns: %{user_location: %Geo.Point{} = location}}),
+    do: {location, false}
+
+  defp reference_point(%{assigns: %{center: center}}), do: {center, true}
 
   defp patch_to(socket, filters) do
     push_patch(socket, to: url_for(socket, filters))
@@ -246,6 +317,14 @@ defmodule DogoWeb.BeachMapLive do
         </button>
       </form>
 
+      <p
+        :if={@geolocation in [:denied, :unavailable]}
+        data-role="geolocation-notice"
+        class="rounded-lg border border-base-300 bg-base-200/60 px-3 py-2 text-sm text-base-content/70"
+      >
+        {geolocation_message(@geolocation)}
+      </p>
+
       <div class="relative lg:grid lg:grid-cols-[1fr_20rem] lg:gap-4">
         <div
           id="beach-map"
@@ -274,7 +353,7 @@ defmodule DogoWeb.BeachMapLive do
           <div class="sticky top-0 border-b border-base-300 bg-base-100 px-4 py-2">
             <div class="mx-auto mb-2 h-1 w-10 rounded-full bg-base-300 lg:hidden"></div>
             <h2 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-              Najbliže sredini karte
+              {if @user_location, do: "Najbliže tebi", else: "Najbliže sredini karte"}
             </h2>
           </div>
 
@@ -354,6 +433,16 @@ defmodule DogoWeb.BeachMapLive do
     </label>
     """
   end
+
+  defp geolocation_message(:denied),
+    do:
+      "Bez tvoje lokacije mjerimo udaljenost od sredine karte. " <>
+        "Pomakni kartu na mjesto koje te zanima."
+
+  defp geolocation_message(:unavailable),
+    do: "Ovaj preglednik ne nudi lokaciju, pa mjerimo udaljenost od sredine karte."
+
+  defp geolocation_message(_), do: nil
 
   defp empty_message(filters) do
     if BeachFilters.active?(filters) do
