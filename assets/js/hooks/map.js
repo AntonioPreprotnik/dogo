@@ -4,6 +4,12 @@ import maplibregl from "../../vendor/maplibre-gl.js"
 // phx-update="ignore". Sva komunikacija ide iskljucivo kroz evente.
 const BOUNDS_DEBOUNCE_MS = 300
 const SOURCE_ID = "beaches"
+const LAYER_ID = "beaches-circles"
+
+const escapeHtml = (value) =>
+  String(value).replace(/[&<>"']/g, (c) =>
+    ({"&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;", "'": "&#39;"})[c]
+  )
 
 export default {
   mounted() {
@@ -26,18 +32,21 @@ export default {
         data: {type: "FeatureCollection", features: []}
       })
 
+      // Boju odreduje sam MapLibre iz svojstva dog_status, pa se pri
+      // osvjezavanju podataka salje samo GeoJSON, bez ponovnog stila.
       this.map.addLayer({
-        id: "beaches-circles",
+        id: LAYER_ID,
         type: "circle",
         source: SOURCE_ID,
         paint: {
-          "circle-radius": 6,
-          "circle-color": "#2563eb",
+          "circle-radius": ["interpolate", ["linear"], ["zoom"], 7, 4, 12, 7, 16, 10],
+          "circle-color": ["match", ["get", "dog_status"], ...config.colors, config.fallbackColor],
           "circle-stroke-width": 1.5,
           "circle-stroke-color": "#ffffff"
         }
       })
 
+      this.bindPopup()
       this.pushBounds()
     })
 
@@ -57,7 +66,49 @@ export default {
 
   destroyed() {
     clearTimeout(this.boundsTimer)
+    if (this.popup) this.popup.remove()
     if (this.map) this.map.remove()
+  },
+
+  bindPopup() {
+    this.popup = new maplibregl.Popup({closeButton: true, closeOnClick: true, maxWidth: "260px"})
+
+    this.map.on("click", LAYER_ID, (event) => {
+      const feature = event.features[0]
+      const [lon, lat] = feature.geometry.coordinates
+
+      this.popup
+        .setLngLat([lon, lat])
+        .setHTML(this.popupHtml(feature.properties))
+        .addTo(this.map)
+    })
+
+    // Bez ovoga korisnik ne zna da je tocka klikabilna.
+    this.map.on("mouseenter", LAYER_ID, () => {
+      this.map.getCanvas().style.cursor = "pointer"
+    })
+    this.map.on("mouseleave", LAYER_ID, () => {
+      this.map.getCanvas().style.cursor = ""
+    })
+  },
+
+  popupHtml(properties) {
+    const name = escapeHtml(properties.name || "Plaža bez imena")
+    const status = escapeHtml(properties.dog_status_label)
+    const color = escapeHtml(properties.color)
+    const distance = properties.distance_label
+      ? `<p class="beach-popup__distance">${escapeHtml(properties.distance_label)}</p>`
+      : ""
+
+    return `
+      <div class="beach-popup">
+        <h3 class="beach-popup__name">${name}</h3>
+        <p class="beach-popup__status"><span style="background:${color}"></span>${status}</p>
+        ${distance}
+        <a class="beach-popup__link" href="/beaches/${properties.id}"
+           data-phx-link="redirect" data-phx-link-state="push">Detalji &rarr;</a>
+      </div>
+    `
   },
 
   scheduleBoundsPush() {

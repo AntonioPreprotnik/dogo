@@ -42,11 +42,11 @@ defmodule DogoWeb.BeachMapLive do
   end
 
   defp map_config do
-    %{
+    Map.merge(GeoJSON.marker_color_match(), %{
       styleUrl: Application.get_env(:dogo, :map_style_url),
       center: @default_center,
       zoom: @default_zoom
-    }
+    })
   end
 
   @impl true
