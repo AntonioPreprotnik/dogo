@@ -103,6 +103,9 @@ defmodule Dogo.Beaches do
   Uz opciju `:near` (točka) rezultat dobiva `distance_m` i poredan je po
   udaljenosti od te točke. Bez nje bbox nema referentnu točku, pa se vraća
   poredan po `id`.
+
+  Opcija `:within_m` reže rezultat na radijus oko `:near`. Bez `:near` se
+  ignorira — nema od čega mjeriti.
   """
   @spec within_bbox({float(), float(), float(), float()}, query_opts()) ::
           {:ok, [Beach.t()]} | {:too_many, [Beach.t()]}
@@ -123,6 +126,7 @@ defmodule Dogo.Beaches do
         )
       )
       |> apply_filters(opts)
+      |> apply_radius(Keyword.get(opts, :near), Keyword.get(opts, :within_m))
       |> order_from(Keyword.get(opts, :near))
       |> limit(^(limit + 1))
       |> Repo.all()
@@ -169,6 +173,9 @@ defmodule Dogo.Beaches do
   end
 
   defp apply_radius(query, _point, nil), do: query
+
+  # Bez referentne tocke radijus nema od cega mjeriti, pa se ignorira.
+  defp apply_radius(query, nil, _radius_m), do: query
 
   defp apply_radius(query, point, radius_m) do
     where(

@@ -53,6 +53,12 @@ defmodule DogoWeb.BeachComponents do
   @doc "Ljudski čitljiv naziv podloge."
   def surface_label(surface), do: @surface_labels[surface]
 
+  @doc "Ljudski čitljiv naziv sadržaja."
+  def amenity_label(amenity) do
+    {label, _icon} = Map.fetch!(@amenity_labels, to_string(amenity))
+    label
+  end
+
   @doc """
   Popis sadržaja plaže s oznakom postoji/ne postoji.
 

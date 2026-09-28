@@ -61,4 +61,24 @@ defmodule Dogo.Beaches.BboxNearTest do
 
     assert Enum.map(beaches, & &1.name) == ["Blizu", "Srednje"]
   end
+
+  describe ":within_m" do
+    test "reže rezultat na radijus oko :near" do
+      assert {:ok, beaches} = Beaches.within_bbox(@bbox, near: @center, within_m: 1_500)
+
+      assert Enum.map(beaches, & &1.name) == ["Blizu"]
+    end
+
+    test "veći radijus propušta više" do
+      assert {:ok, beaches} = Beaches.within_bbox(@bbox, near: @center, within_m: 3_000)
+
+      assert Enum.map(beaches, & &1.name) == ["Blizu", "Srednje"]
+    end
+
+    test "bez :near se ignorira, jer nema od čega mjeriti" do
+      assert {:ok, beaches} = Beaches.within_bbox(@bbox, within_m: 1)
+
+      assert length(beaches) == 3
+    end
+  end
 end

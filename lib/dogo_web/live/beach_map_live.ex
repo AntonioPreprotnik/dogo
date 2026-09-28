@@ -1,15 +1,19 @@
 defmodule DogoWeb.BeachMapLive do
   @moduledoc """
-  Karta plaža s listom rezultata.
+  Karta plaža s listom rezultata i filterima.
 
   Podjela posla: karta živi u JS-u i LiveView je nikad ne re-renderira
   (`phx-update="ignore"`). Klijent javlja `bounds_changed`, server odgovara
-  markerima kroz `push_event` i listom kroz običan render. Tako se LiveView i
-  MapLibre ne tuku oko DOM-a.
+  markerima kroz `push_event` i listom kroz render.
+
+  Cijelo stanje pretrage — filteri i pozicija karte — živi u query stringu.
+  `handle_params/3` je jedini put kojim filteri ulaze u socket, pa je svaki
+  prikaz djeljiv linkom i preživi osvježavanje.
   """
   use DogoWeb, :live_view
 
   alias Dogo.Beaches
+  alias DogoWeb.BeachFilters
   alias DogoWeb.GeoJSON
 
   # Cijeli Jadran stane u ovaj pogled.
@@ -32,44 +36,114 @@ defmodule DogoWeb.BeachMapLive do
      |> assign(:visible_count, 0)
      |> assign(:truncated?, false)
      |> assign(:selected_id, nil)
-     |> assign(:map_config, map_config())}
+     |> assign(:bbox, nil)
+     |> assign(:center, nil)
+     |> assign(:zoom, nil)}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    filters = BeachFilters.parse(params)
+
+    socket =
+      socket
+      |> assign(:filters, filters)
+      |> assign_new(:map_config, fn -> map_config(params) end)
+
+    {:noreply, refresh(socket)}
   end
 
   @impl true
   def handle_event("bounds_changed", params, socket) do
     bbox = {params["west"], params["south"], params["east"], params["north"]}
-    center = center_from(params, bbox)
 
-    {truncated?, beaches} =
-      case Beaches.within_bbox(bbox, near: center) do
-        {:ok, beaches} -> {false, beaches}
-        {:too_many, beaches} -> {true, beaches}
-      end
+    socket =
+      socket
+      |> assign(:bbox, bbox)
+      |> assign(:center, center_from(params, bbox))
+      |> assign(:zoom, params["zoom"])
+      |> refresh()
 
-    {:noreply,
-     socket
-     |> assign(
-       beaches: Enum.take(beaches, @list_limit),
-       visible_count: length(beaches),
-       truncated?: truncated?
-     )
-     |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})}
+    # `replace: true`: link ostaje djeljiv, a povijest preglednika se ne puni
+    # svakim pomakom karte.
+    {:noreply, push_patch(socket, to: url_for(socket, socket.assigns.filters), replace: true)}
+  end
+
+  def handle_event("filter", params, socket) do
+    {:noreply, patch_to(socket, BeachFilters.from_form(params))}
+  end
+
+  def handle_event("clear_filters", _params, socket) do
+    {:noreply, patch_to(socket, BeachFilters.clear())}
   end
 
   def handle_event("select_beach", %{"id" => id}, socket) do
-    beach = Enum.find(socket.assigns.beaches, &(to_string(&1.id) == id))
-
-    case beach do
+    case Enum.find(socket.assigns.beaches, &(to_string(&1.id) == id)) do
       nil ->
         {:noreply, socket}
 
-      %{geom: %Geo.Point{coordinates: {lon, lat}}} ->
+      %{geom: %Geo.Point{coordinates: {lon, lat}}} = beach ->
         {:noreply,
          socket
          |> assign(:selected_id, beach.id)
          |> push_event("fly_to", %{lon: lon, lat: lat, zoom: @focus_zoom})}
     end
   end
+
+  # Upit se vrti tek kad karta javi svoje granice. Do tada nemamo sto pitati.
+  defp refresh(%{assigns: %{bbox: nil}} = socket), do: socket
+
+  defp refresh(socket) do
+    %{bbox: bbox, center: center, filters: filters} = socket.assigns
+
+    opts = Keyword.put(BeachFilters.to_opts(filters), :near, center)
+
+    {truncated?, beaches} =
+      case Beaches.within_bbox(bbox, opts) do
+        {:ok, beaches} -> {false, beaches}
+        {:too_many, beaches} -> {true, beaches}
+      end
+
+    socket
+    |> assign(
+      beaches: Enum.take(beaches, @list_limit),
+      visible_count: length(beaches),
+      truncated?: truncated?
+    )
+    |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
+  end
+
+  defp patch_to(socket, filters) do
+    push_patch(socket, to: url_for(socket, filters))
+  end
+
+  # Jedno mjesto koje gradi URL, i za promjenu filtera i za pomak karte.
+  # Kad je pozicija bila u dvije funkcije, promjena filtera je ispustila zoom i
+  # isti link je u novoj kartici otvarao drugi pogled.
+  defp url_for(socket, filters) do
+    query = Map.merge(BeachFilters.to_params(filters), position_params(socket))
+
+    ~p"/?#{query}"
+  end
+
+  defp position_params(%{assigns: %{center: %Geo.Point{coordinates: {lon, lat}}, zoom: zoom}}) do
+    %{
+      "lat" => round_coordinate(lat),
+      "lon" => round_coordinate(lon),
+      "zoom" => round_zoom(zoom)
+    }
+    |> Enum.reject(fn {_key, value} -> is_nil(value) end)
+    |> Map.new()
+  end
+
+  defp position_params(_socket), do: %{}
+
+  # Pet decimala je oko metar. Vise od toga samo produljuje link.
+  defp round_coordinate(value) when is_number(value), do: Float.round(value / 1, 5)
+  defp round_coordinate(_), do: nil
+
+  defp round_zoom(value) when is_number(value), do: Float.round(value / 1, 2)
+  defp round_zoom(_), do: nil
 
   # Centar normalno salje karta. Ako ga nema (stariji klijent, ili event
   # sastavljen rucno), sredina pravokutnika je dovoljno dobra zamjena — bolje
@@ -83,13 +157,25 @@ defmodule DogoWeb.BeachMapLive do
     %Geo.Point{coordinates: {(west + east) / 2, (south + north) / 2}, srid: 4326}
   end
 
-  defp map_config do
+  defp map_config(params) do
     Map.merge(GeoJSON.marker_color_match(), %{
       styleUrl: Application.get_env(:dogo, :map_style_url),
-      center: @default_center,
-      zoom: @default_zoom
+      center: %{
+        lon: coordinate(params["lon"], @default_center.lon),
+        lat: coordinate(params["lat"], @default_center.lat)
+      },
+      zoom: coordinate(params["zoom"], @default_zoom)
     })
   end
+
+  defp coordinate(value, default) when is_binary(value) do
+    case Float.parse(value) do
+      {number, _rest} -> number
+      :error -> default
+    end
+  end
+
+  defp coordinate(_value, default), do: default
 
   @impl true
   def render(assigns) do
@@ -104,6 +190,61 @@ defmodule DogoWeb.BeachMapLive do
           <span :if={not @truncated?}>Vidljivo: {@visible_count}</span>
         </p>
       </div>
+
+      <form phx-change="filter" class="flex flex-wrap items-center gap-x-6 gap-y-3 text-sm">
+        <fieldset class="flex flex-wrap items-center gap-2">
+          <legend class="sr-only">Status za pse</legend>
+          <.filter_chip
+            :for={status <- [:designated, :allowed]}
+            name={"dog[#{status}]"}
+            checked={status in @filters.dog_status}
+            label={dog_status_label(status)}
+          />
+        </fieldset>
+
+        <fieldset class="flex flex-wrap items-center gap-2">
+          <legend class="sr-only">Podloga</legend>
+          <.filter_chip
+            :for={surface <- [:sand, :pebble, :rock]}
+            name={"surface[#{surface}]"}
+            checked={surface in @filters.surface}
+            label={surface_label(surface)}
+          />
+        </fieldset>
+
+        <fieldset class="flex flex-wrap items-center gap-2">
+          <legend class="sr-only">Sadržaji</legend>
+          <.filter_chip
+            :for={amenity <- BeachFilters.amenity_filters()}
+            name={"amenities[#{amenity}]"}
+            checked={amenity in @filters.amenities}
+            label={amenity_label(amenity)}
+          />
+        </fieldset>
+
+        <label class="flex items-center gap-2">
+          <span class="text-base-content/70">Radijus</span>
+          <select name="radius" class="rounded-lg border border-base-300 bg-base-100 px-2 py-1">
+            <option value="" selected={is_nil(@filters.radius_m)}>bez ograničenja</option>
+            <option
+              :for={radius <- Beaches.radii_m()}
+              value={radius}
+              selected={@filters.radius_m == radius}
+            >
+              {div(radius, 1000)} km
+            </option>
+          </select>
+        </label>
+
+        <button
+          :if={BeachFilters.active?(@filters)}
+          type="button"
+          phx-click="clear_filters"
+          class="text-base-content/60 underline"
+        >
+          Očisti filtere
+        </button>
+      </form>
 
       <div class="relative lg:grid lg:grid-cols-[1fr_20rem] lg:gap-4">
         <div
@@ -138,7 +279,7 @@ defmodule DogoWeb.BeachMapLive do
           </div>
 
           <p :if={@beaches == []} class="px-4 py-6 text-sm text-base-content/60">
-            Nema plaža u ovom dijelu karte. Pomakni ili odzumiraj kartu.
+            {empty_message(@filters)}
           </p>
 
           <ul class="divide-y divide-base-300">
@@ -194,5 +335,31 @@ defmodule DogoWeb.BeachMapLive do
       </div>
     </Layouts.app>
     """
+  end
+
+  attr :name, :string, required: true
+  attr :checked, :boolean, required: true
+  attr :label, :string, required: true
+
+  defp filter_chip(assigns) do
+    ~H"""
+    <label class={[
+      "cursor-pointer rounded-full border px-3 py-1 transition-colors",
+      @checked && "border-base-content bg-base-content text-base-100",
+      !@checked && "border-base-300 hover:bg-base-200"
+    ]}>
+      <input type="hidden" name={@name} value="false" />
+      <input type="checkbox" name={@name} value="true" checked={@checked} class="sr-only" />
+      {@label}
+    </label>
+    """
+  end
+
+  defp empty_message(filters) do
+    if BeachFilters.active?(filters) do
+      "Nijedna plaža u ovom dijelu karte ne odgovara filterima."
+    else
+      "Nema plaža u ovom dijelu karte. Pomakni ili odzumiraj kartu."
+    end
   end
 end
