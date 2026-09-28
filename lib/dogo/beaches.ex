@@ -15,6 +15,10 @@ defmodule Dogo.Beaches do
 
   @default_limit 20
 
+  # Tvrdi limit za bbox upite: iznad ovoga karta ionako nije čitljiva bez
+  # klasteriranja, a odgovor postaje preskup i za server i za mobitel.
+  @bbox_limit 500
+
   @typedoc """
   Opcije prostornih upita.
 
@@ -22,9 +26,11 @@ defmodule Dogo.Beaches do
   - `:dog_status` — popis statusa, npr. `[:designated, :allowed]`
   - `:surface` — popis podloga
   - `:amenities` — popis obaveznih sadržaja, npr. `[:water, :shade]`
-  - `:within_m` — ograniči na radijus u metrima
   """
   @type query_opts :: keyword()
+
+  @doc "Tvrdi limit rezultata za bbox upite."
+  def bbox_limit, do: @bbox_limit
 
   @doc "Dohvaća plažu po ID-u ili diže `Ecto.NoResultsError`."
   def get_beach!(id), do: Repo.get!(Beach, id)
@@ -72,6 +78,46 @@ defmodule Dogo.Beaches do
     |> order_by([b], fragment("? <-> ?", type(^point, Geo.PostGIS.Geometry), b.geom))
     |> limit(^Keyword.get(opts, :limit, @default_limit))
     |> Repo.all()
+  end
+
+  @doc """
+  Plaže unutar vidljivog dijela karte.
+
+  `bbox` je `{min_lon, min_lat, max_lon, max_lat}`. Koristi `ST_MakeEnvelope`
+  i operator `&&`, koji ide preko GiST indeksa nad `geometry`.
+
+  Vraća `{:ok, beaches}` ili `{:too_many, beaches}` kad rezultata ima više od
+  `bbox_limit/0` — tada sučelje traži veći zoom ili klasteriranje (E3-S3).
+  Rezultat nije poredan po udaljenosti jer bbox nema referentnu točku.
+  """
+  @spec within_bbox({float(), float(), float(), float()}, query_opts()) ::
+          {:ok, [Beach.t()]} | {:too_many, [Beach.t()]}
+  def within_bbox({min_lon, min_lat, max_lon, max_lat}, opts \\ []) do
+    limit = Keyword.get(opts, :limit, @bbox_limit)
+
+    beaches =
+      Beach
+      |> where(
+        [b],
+        fragment(
+          "? && ST_MakeEnvelope(?, ?, ?, ?, 4326)",
+          b.geom,
+          ^min_lon,
+          ^min_lat,
+          ^max_lon,
+          ^max_lat
+        )
+      )
+      |> apply_filters(opts)
+      |> order_by([b], b.id)
+      |> limit(^(limit + 1))
+      |> Repo.all()
+
+    if length(beaches) > limit do
+      {:too_many, Enum.take(beaches, limit)}
+    else
+      {:ok, beaches}
+    end
   end
 
   defp with_distance(query, point) do
