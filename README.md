@@ -115,6 +115,7 @@ ishodu te trajanje uvoza — bez koordinata u metapodacima.
 - [`docs/PLAN.md`](docs/PLAN.md) — vizija, opseg, epici i storyji
 - [`docs/adr/`](docs/adr/) — arhitektonske odluke
 - [`docs/performance.md`](docs/performance.md) — mjerenja indeksa i Lighthouse
+- [`CHANGELOG.md`](CHANGELOG.md) — što je u kojoj verziji
 - [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) — konvencije za rad s AI alatima
 
 ## Licenca podataka
