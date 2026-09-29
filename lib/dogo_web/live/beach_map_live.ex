@@ -163,11 +163,15 @@ defmodule DogoWeb.BeachMapLive do
   end
 
   def handle_event("filter", params, socket) do
-    {:noreply, patch_to(socket, BeachFilters.from_form(params))}
+    {:noreply, patch_to(socket, BeachFilters.from_form(params, socket.assigns.filters))}
   end
 
   def handle_event("clear_filters", _params, socket) do
-    {:noreply, patch_to(socket, BeachFilters.clear())}
+    {:noreply, patch_to(socket, BeachFilters.clear(socket.assigns.filters))}
+  end
+
+  def handle_event("sort", params, socket) do
+    {:noreply, patch_to(socket, BeachFilters.with_sort(socket.assigns.filters, params["sort"]))}
   end
 
   def handle_event("select_beach", %{"id" => id}, socket) do
@@ -346,6 +350,21 @@ defmodule DogoWeb.BeachMapLive do
         |> assign(:driving_for, ids)
         |> start_async(:driving, fn -> {ids, safe_table(origin, points)} end)
     end
+  end
+
+  # Redoslijed za prikaz. `@beaches` ostaje poredan po zracnoj udaljenosti,
+  # jer o tom poretku ovisi za kojih se deset plaza trazi vrijeme voznje —
+  # da se preslaze i stanje, drugi zahtjev bi isao za druge plaze.
+  #
+  # Po vremenu voznje: prvo plaze s poznatim vremenom, od najbrze; zatim
+  # ostale, po zracnoj udaljenosti. Plaza bez rute ne smije iskociti na vrh
+  # samo zato sto nema broja.
+  defp ordered(beaches, _driving, :distance), do: beaches
+
+  defp ordered(beaches, driving, :driving) do
+    {timed, rest} = Enum.split_with(beaches, &driving[&1.id])
+
+    Enum.sort_by(timed, &driving[&1.id].duration_s) ++ rest
   end
 
   # Iznimka u rutiranju se hvata ovdje, a ne prepusta Tasku. Pad zadatka ispise
@@ -610,11 +629,36 @@ defmodule DogoWeb.BeachMapLive do
         >
           <div class="sticky top-0 border-b border-base-300 bg-base-100 px-4 py-2">
             <div class="mx-auto mb-2 h-1 w-10 rounded-full bg-base-300 lg:hidden"></div>
-            <h2 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
-              {if @user_location,
-                do: gettext("Closest to you"),
-                else: gettext("Closest to map centre")}
-            </h2>
+            <div class="flex items-center justify-between gap-2">
+              <h2 class="text-xs font-semibold uppercase tracking-wide text-base-content/60">
+                {if @user_location,
+                  do: gettext("Closest to you"),
+                  else: gettext("Closest to map centre")}
+              </h2>
+              <form phx-change="sort" data-role="sort">
+                <label class="flex items-center gap-1 text-xs text-base-content/60">
+                  <span>{gettext("Sort")}</span>
+                  <select
+                    name="sort"
+                    class="rounded border border-base-300 bg-base-100 px-1 py-0.5 text-base-content"
+                  >
+                    <option value="distance" selected={@filters.sort == :distance}>
+                      {gettext("Straight-line distance")}
+                    </option>
+                    <option value="driving" selected={@filters.sort == :driving}>
+                      {gettext("Driving time")}
+                    </option>
+                  </select>
+                </label>
+              </form>
+            </div>
+            <p
+              :if={@filters.sort == :driving and @beaches != [] and @driving == %{}}
+              data-role="sort-fallback"
+              class="mt-1 text-xs text-base-content/60"
+            >
+              {gettext("Driving time is not available yet; sorted by straight-line distance.")}
+            </p>
           </div>
 
           <p :if={@beaches == []} class="px-4 py-6 text-sm text-base-content/60">
@@ -622,7 +666,7 @@ defmodule DogoWeb.BeachMapLive do
           </p>
 
           <ul class="divide-y divide-base-300">
-            <li :for={beach <- @beaches}>
+            <li :for={beach <- ordered(@beaches, @driving, @filters.sort)}>
               <button
                 type="button"
                 phx-click="select_beach"

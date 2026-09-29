@@ -18,10 +18,18 @@ defmodule DogoWeb.BeachFilters do
           surface: [atom()],
           amenities: [atom()],
           radius_m: pos_integer() | nil,
-          without_ferry: boolean()
+          without_ferry: boolean(),
+          sort: :distance | :driving
         }
 
-  defstruct dog_status: [], surface: [], amenities: [], radius_m: nil, without_ferry: false
+  # `sort` nije filter: ne mijenja koje plaže se prikazuju, nego njihov
+  # redoslijed. Živi ovdje jer je i on dio stanja koje se dijeli linkom.
+  defstruct dog_status: [],
+            surface: [],
+            amenities: [],
+            radius_m: nil,
+            without_ferry: false,
+            sort: :distance
 
   @amenity_filters ~w(dog_shower shade water)a
 
@@ -41,7 +49,8 @@ defmodule DogoWeb.BeachFilters do
       surface: parse_list(params["surface"], Beach.surfaces()),
       amenities: parse_list(params["amenities"], @amenity_filters),
       radius_m: parse_radius(params["radius"]),
-      without_ferry: params["ferry"] == "no"
+      without_ferry: params["ferry"] == "no",
+      sort: parse_sort(params["sort"])
     }
   end
 
@@ -57,6 +66,7 @@ defmodule DogoWeb.BeachFilters do
     |> put_list("amenities", filters.amenities)
     |> put_radius(filters.radius_m)
     |> put_ferry(filters.without_ferry)
+    |> put_sort(filters.sort)
   end
 
   @doc "Opcije za `Dogo.Beaches` upite."
@@ -77,21 +87,31 @@ defmodule DogoWeb.BeachFilters do
       filters.radius_m != nil or filters.without_ferry
   end
 
-  @doc "Filteri iz podataka forme (checkboxi šalju mapu ključ => \"true\")."
-  @spec from_form(map()) :: t()
-  def from_form(params) do
+  @doc """
+  Filteri iz podataka forme (checkboxi šalju mapu ključ => "true").
+
+  Forma filtera ne sadrži redoslijed, pa se on uzima iz `current` — inače bi
+  svaki klik na filter vratio sortiranje na zadano.
+  """
+  @spec from_form(map(), t()) :: t()
+  def from_form(params, current \\ %__MODULE__{}) do
     %__MODULE__{
       dog_status: checked(params["dog"], Beach.dog_statuses()),
       surface: checked(params["surface"], Beach.surfaces()),
       amenities: checked(params["amenities"], @amenity_filters),
       radius_m: parse_radius(params["radius"]),
-      without_ferry: params["ferry"] == "true"
+      without_ferry: params["ferry"] == "true",
+      sort: current.sort
     }
   end
 
-  @doc "Prazni filteri."
-  @spec clear() :: t()
-  def clear, do: %__MODULE__{}
+  @doc "Prazni filteri. Redoslijed nije filter, pa ostaje kakav je bio."
+  @spec clear(t()) :: t()
+  def clear(current \\ %__MODULE__{}), do: %__MODULE__{sort: current.sort}
+
+  @doc "Isti filteri s drugim redoslijedom; nepoznata vrijednost daje zadani."
+  @spec with_sort(t(), String.t() | nil) :: t()
+  def with_sort(%__MODULE__{} = filters, value), do: %{filters | sort: parse_sort(value)}
 
   defp parse_list(nil, _allowed), do: []
 
@@ -134,6 +154,12 @@ defmodule DogoWeb.BeachFilters do
 
   defp put_radius(params, nil), do: params
   defp put_radius(params, radius), do: Map.put(params, "radius", to_string(radius))
+
+  defp parse_sort("driving"), do: :driving
+  defp parse_sort(_), do: :distance
+
+  defp put_sort(params, :distance), do: params
+  defp put_sort(params, :driving), do: Map.put(params, "sort", "driving")
 
   defp put_ferry(params, false), do: params
   defp put_ferry(params, true), do: Map.put(params, "ferry", "no")
