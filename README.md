@@ -22,7 +22,8 @@ biti sa psom — s pravim vremenom vožnje i upozorenjem kad je plaža "preko mo
   služe za oznaku "preko mora" i filter "bez trajekta"
   ([ADR 0005](docs/adr/0005-poligoni-otoka-iz-osm-a.md)).
 - **Asinkroni OSRM** — lista se prikaže odmah sa zračnom udaljenošću, vrijeme
-  vožnje stiže naknadno; timeout i fallback ne ruše stranicu.
+  vožnje stiže naknadno; timeout i fallback ne ruše stranicu
+  ([ADR 0008](docs/adr/0008-osrm-kao-neobavezan-dodatak.md)).
 - **Idempotentan uvoz** — Oban job s upsertom po `osm_id`; ponovno pokretanje ne
   stvara duplikate.
 
@@ -63,6 +64,8 @@ flowchart LR
 
 Web sloj ne piše Ecto upite; sve ide kroz kontekste. Svaki vanjski servis je iza
 behaviour modula, pa ga testovi zamjenjuju Moxom i nikad ne idu na mrežu.
+Zašto LiveView, a ne SPA: [ADR 0006](docs/adr/0006-liveview-umjesto-spa.md).
+Zašto OSM i što mu nedostaje: [ADR 0007](docs/adr/0007-openstreetmap-kao-izvor-podataka.md).
 
 ## Lokalno pokretanje
 
