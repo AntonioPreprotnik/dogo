@@ -24,6 +24,7 @@ defmodule DogoWeb.Router do
     end
 
     post "/locale", LocaleController, :update
+    get "/manifest.webmanifest", ManifestController, :show
   end
 
   scope "/", DogoWeb do

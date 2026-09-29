@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dogo">
+  <!-- More i obala: plaza. Sapa na njoj: pas. -->
+  <rect width="512" height="512" rx="96" fill="#0c4a6e"/>
+  <path d="M0 330c64 0 64 26 128 26s64-26 128-26 64 26 128 26 64-26 128-26v182H0z" fill="#0ea5e9"/>
+  <path d="M0 300c64 0 64 22 128 22s64-22 128-22 64 22 128 22 64-22 128-22v40c-64 0-64 26-128 26s-64-26-128-26-64 26-128 26-64-26-128-26z" fill="#38bdf8" opacity="0.6"/>
+  <g fill="#ffffff">
+    <ellipse cx="256" cy="212" rx="62" ry="52"/>
+    <ellipse cx="163" cy="150" rx="31" ry="42" transform="rotate(-18 163 150)"/>
+    <ellipse cx="225" cy="112" rx="28" ry="40" transform="rotate(-7 225 112)"/>
+    <ellipse cx="290" cy="112" rx="28" ry="40" transform="rotate(7 290 112)"/>
+    <ellipse cx="350" cy="150" rx="31" ry="42" transform="rotate(18 350 150)"/>
+  </g>
+</svg>

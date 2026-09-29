@@ -83,3 +83,12 @@ if (process.env.NODE_ENV === "development") {
   })
 }
 
+// Service worker: bez njega preglednik ne nudi instalaciju aplikacije.
+// Registrira se tek nakon ucitavanja, da ne natjece s prvim prikazom.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.warn("Service worker nije registriran:", error)
+    })
+  })
+}

@@ -112,6 +112,19 @@ defmodule DogoWeb.BeachMapLive do
     {:noreply, assign(socket, :geolocation, :error)}
   end
 
+  # Preglednik jos nije nista rekao: nudimo gumb umjesto da sami otvorimo
+  # dijalog za dopustenje.
+  def handle_event("geolocation_idle", _params, socket) do
+    {:noreply, assign(socket, :geolocation, :idle)}
+  end
+
+  def handle_event("request_location", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(:geolocation, :requesting)
+     |> push_event("request_location", %{})}
+  end
+
   def handle_event("geolocation_error", %{"reason" => reason}, socket) do
     {:noreply, assign(socket, :geolocation, geolocation_reason(reason))}
   end
@@ -495,6 +508,24 @@ defmodule DogoWeb.BeachMapLive do
         class="rounded-lg border border-warning/40 bg-warning/10 px-3 py-2 text-sm"
       >
         {gettext("The background map is not loading. The beach list and distances still work.")}
+      </p>
+
+      <p :if={@geolocation in [:idle, :requesting]} class="flex items-center gap-3 text-sm">
+        <button
+          type="button"
+          phx-click="request_location"
+          disabled={@geolocation == :requesting}
+          data-role="request-location"
+          class="inline-flex items-center gap-2 rounded-lg border border-base-300 px-3 py-1.5 font-medium hover:bg-base-200 disabled:opacity-60"
+        >
+          <.icon name="hero-map-pin" class="size-4" />
+          {if @geolocation == :requesting,
+            do: gettext("Waiting for location…"),
+            else: gettext("Use my location")}
+        </button>
+        <span class="text-base-content/60">
+          {gettext("Until then we measure from the map centre.")}
+        </span>
       </p>
 
       <div

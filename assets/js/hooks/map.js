@@ -94,7 +94,12 @@ export default {
     })
 
     this.watchTiles()
-    this.locateUser()
+
+    // Lokaciju trazimo sami samo ako je korisnik vec jednom pristao — tada
+    // nema dijaloga. Inace cekamo da klikne gumb: iskakanje dijaloga cim se
+    // stranica otvori je losa praksa i korisnici ga refleksno odbiju.
+    this.handleEvent("request_location", () => this.locateUser())
+    this.locateIfAlreadyAllowed()
 
     // Ako stil ne uspije, MapLibre nikad ne emitira `load`, pa granice ne bi
     // nikad stigle na server i lista bi ostala prazna — bas u trenutku kad
@@ -112,6 +117,34 @@ export default {
     if (this.popup) this.popup.remove()
     if (this.userMarker) this.userMarker.remove()
     if (this.map) this.map.remove()
+  },
+
+  async locateIfAlreadyAllowed() {
+    if (!navigator.geolocation) {
+      this.pushEvent("geolocation_error", {reason: "unavailable"})
+      return
+    }
+
+    // Permissions API ne postoji svugdje; bez njega ne znamo stanje, pa
+    // pitamo korisnika umjesto da pretpostavljamo.
+    if (!navigator.permissions) {
+      this.pushEvent("geolocation_idle", {})
+      return
+    }
+
+    try {
+      const status = await navigator.permissions.query({name: "geolocation"})
+
+      if (status.state === "granted") {
+        this.locateUser()
+      } else if (status.state === "denied") {
+        this.pushEvent("geolocation_error", {reason: "denied"})
+      } else {
+        this.pushEvent("geolocation_idle", {})
+      }
+    } catch (_error) {
+      this.pushEvent("geolocation_idle", {})
+    }
   },
 
   locateUser() {

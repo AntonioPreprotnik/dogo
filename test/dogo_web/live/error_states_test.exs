@@ -105,4 +105,42 @@ defmodule DogoWeb.ErrorStatesTest do
       assert render_hook(view, "bounds_changed", @bounds) =~ "ne odgovara filterima"
     end
   end
+
+  describe "trazenje lokacije" do
+    test "bez odgovora preglednika nudi gumb umjesto dijaloga", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+
+      html = render_hook(view, "geolocation_idle", %{})
+
+      assert html =~ "Koristi moju lokaciju"
+      assert has_element?(view, ~s([data-role="request-location"]))
+    end
+
+    test "klik na gumb trazi lokaciju od hooka", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+      render_hook(view, "geolocation_idle", %{})
+
+      html = view |> element(~s([data-role="request-location"])) |> render_click()
+
+      assert_push_event(view, "request_location", %{})
+      assert html =~ "Čekam lokaciju"
+    end
+
+    test "dok cekamo, gumb je onemogucen", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+      render_hook(view, "geolocation_idle", %{})
+      render_click(view, "request_location", %{})
+
+      assert has_element?(view, ~s([data-role="request-location"][disabled]))
+    end
+
+    test "nakon odbijanja nema vise gumba, nego pretrage mjesta", %{conn: conn} do
+      {:ok, view, _html} = live(conn, ~p"/")
+      render_hook(view, "geolocation_idle", %{})
+      render_hook(view, "geolocation_error", %{"reason" => "denied"})
+
+      refute has_element?(view, ~s([data-role="request-location"]))
+      assert has_element?(view, ~s([data-role="place-fallback"]))
+    end
+  end
 end
