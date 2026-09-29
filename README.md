@@ -93,9 +93,14 @@ Gettext (hr/en/de) · PWA · Fly.io
 ## Provjere kvalitete
 
 ```sh
-mix precommit   # compile --warnings-as-errors, deps.unlock, format, credo, test
+mix precommit          # compile --warnings-as-errors, deps.unlock, format, credo, test
 mix dialyzer
+mix coveralls.html     # pokrivenost, izvještaj u cover/; CI pada ispod 80 %
 ```
+
+Pokrivenost: **90 %** za domenu (`lib/dogo`), 83 % ukupno. Prostorni upiti
+testiraju se na stvarnoj PostGIS bazi; Overpass, Nominatim i OSRM su iza
+behavioura i u testovima nikad ne idu na mrežu.
 
 ## Dokumentacija
 

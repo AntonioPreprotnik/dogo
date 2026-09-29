@@ -74,5 +74,13 @@ jobs:
       - name: Dialyzer
         run: mix dialyzer --format github
 
-      - name: Test
-        run: mix test
+      # Testovi s pokrivenoscu; ispod 80 % (coveralls.json) build pada.
+      - name: Test i pokrivenost
+        run: mix coveralls.html
+
+      - name: Izvjestaj o pokrivenosti
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: cover/excoveralls.html

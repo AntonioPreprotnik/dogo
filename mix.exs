@@ -12,7 +12,8 @@ defmodule Dogo.MixProject do
       deps: deps(),
       dialyzer: [plt_add_apps: [:mix, :ex_unit], plt_local_path: "priv/plts"],
       compilers: [:phoenix_live_view] ++ Mix.compilers(),
-      listeners: [Phoenix.CodeReloader]
+      listeners: [Phoenix.CodeReloader],
+      test_coverage: [tool: ExCoveralls]
     ]
   end
 
@@ -28,7 +29,12 @@ defmodule Dogo.MixProject do
 
   def cli do
     [
-      preferred_envs: [precommit: :test]
+      preferred_envs: [
+        precommit: :test,
+        coveralls: :test,
+        "coveralls.html": :test,
+        "coveralls.github": :test
+      ]
     ]
   end
 
@@ -72,6 +78,7 @@ defmodule Dogo.MixProject do
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev, :test], runtime: false},
       {:mox, "~> 1.3", only: :test},
+      {:excoveralls, "~> 0.18", only: :test},
       {:benchee, "~> 1.3", only: [:dev, :test], runtime: false}
     ]
   end
