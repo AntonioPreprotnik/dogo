@@ -20,6 +20,11 @@ if style_url = System.get_env("MAP_STYLE_URL") do
   config :dogo, :map_style_url, style_url
 end
 
+# LiveDashboard na /admin/dashboard. Bez obje varijable je iskljucen.
+config :dogo, :dashboard_auth,
+  username: System.get_env("DASHBOARD_USER"),
+  password: System.get_env("DASHBOARD_PASSWORD")
+
 if System.get_env("PHX_SERVER") do
   config :dogo, DogoWeb.Endpoint, server: true
 end

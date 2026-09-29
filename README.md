@@ -102,6 +102,14 @@ Pokrivenost: **90 %** za domenu (`lib/dogo`), 83 % ukupno. Prostorni upiti
 testiraju se na stvarnoj PostGIS bazi; Overpass, Nominatim i OSRM su iza
 behavioura i u testovima nikad ne idu na mrežu.
 
+## Produkcija
+
+Deploy na Fly.io, upute u [`fly.toml`](fly.toml). LiveDashboard je na
+`/admin/dashboard`, iza basic autha (`DASHBOARD_USER`, `DASHBOARD_PASSWORD`);
+bez tih varijabli ruta vraća 404. Uz standardne metrike Phoenixa, Ecta i VM-a
+prikazuje trajanje prostornih upita, pozive Overpassu, Nominatimu i OSRM-u po
+ishodu te trajanje uvoza — bez koordinata u metapodacima.
+
 ## Dokumentacija
 
 - [`docs/PLAN.md`](docs/PLAN.md) — vizija, opseg, epici i storyji

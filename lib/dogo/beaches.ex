@@ -117,6 +117,10 @@ defmodule Dogo.Beaches do
   """
   @spec nearest(Geo.Point.t(), query_opts()) :: [Beach.t()]
   def nearest(%Geo.Point{} = point, opts \\ []) do
+    Dogo.Telemetry.spatial_query(:nearest, fn -> do_nearest(point, opts) end)
+  end
+
+  defp do_nearest(point, opts) do
     Beach
     |> with_distance(point)
     |> apply_filters(opts)
@@ -154,7 +158,11 @@ defmodule Dogo.Beaches do
   """
   @spec within_bbox({float(), float(), float(), float()}, query_opts()) ::
           {:ok, [Beach.t()]} | {:too_many, [Beach.t()]}
-  def within_bbox({min_lon, min_lat, max_lon, max_lat}, opts \\ []) do
+  def within_bbox(bbox, opts \\ []) do
+    Dogo.Telemetry.spatial_query(:within_bbox, fn -> do_within_bbox(bbox, opts) end)
+  end
+
+  defp do_within_bbox({min_lon, min_lat, max_lon, max_lat}, opts) do
     limit = Keyword.get(opts, :limit, @bbox_limit)
 
     beaches =
@@ -199,7 +207,11 @@ defmodule Dogo.Beaches do
   @spec cluster_in_bbox({float(), float(), float(), float()}, query_opts()) :: [
           %{lon: float(), lat: float(), count: pos_integer()}
         ]
-  def cluster_in_bbox({min_lon, min_lat, max_lon, max_lat}, opts \\ []) do
+  def cluster_in_bbox(bbox, opts \\ []) do
+    Dogo.Telemetry.spatial_query(:cluster_in_bbox, fn -> do_cluster_in_bbox(bbox, opts) end)
+  end
+
+  defp do_cluster_in_bbox({min_lon, min_lat, max_lon, max_lat}, opts) do
     cell = max((max_lon - min_lon) / columns(opts), 0.0001)
 
     query =

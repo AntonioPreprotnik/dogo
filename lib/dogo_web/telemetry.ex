@@ -75,6 +75,35 @@ defmodule DogoWeb.Telemetry do
           "The time the connection spent waiting before being checked out for the query"
       ),
 
+      # Domena (E7-S4). Metapodaci su samo nazivi upita i servisa, nikad
+      # koordinate — vidi Dogo.Telemetry.
+      summary("dogo.beaches.query.stop.duration",
+        tags: [:query],
+        unit: {:native, :millisecond},
+        description: "Trajanje prostornog upita nad plažama"
+      ),
+      summary("dogo.external.request.stop.duration",
+        tags: [:service, :result],
+        unit: {:native, :millisecond},
+        description: "Trajanje poziva vanjskom servisu"
+      ),
+      counter("dogo.external.request.stop.duration",
+        tags: [:service, :result],
+        description: "Broj poziva vanjskim servisima, po ishodu"
+      ),
+      counter("dogo.external.request.exception.duration",
+        tags: [:service],
+        description: "Pozivi vanjskim servisima koji su završili iznimkom"
+      ),
+
+      # Uvoz
+      summary("oban.job.stop.duration",
+        tags: [:worker, :state],
+        tag_values: &oban_tags/1,
+        unit: {:native, :millisecond},
+        description: "Trajanje Oban jobova (uvoz plaža i otoka)"
+      ),
+
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
       summary("vm.total_run_queue_lengths.total"),
@@ -82,6 +111,9 @@ defmodule DogoWeb.Telemetry do
       summary("vm.total_run_queue_lengths.io")
     ]
   end
+
+  defp oban_tags(%{job: job, state: state}), do: %{worker: job.worker, state: state}
+  defp oban_tags(metadata), do: metadata
 
   defp periodic_measurements do
     [

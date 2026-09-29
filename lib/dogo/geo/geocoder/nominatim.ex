@@ -42,22 +42,27 @@ defmodule Dogo.Geo.Geocoder.Nominatim do
   end
 
   defp request(query) do
-    [
-      url: endpoint(),
-      params: [
-        q: query,
-        format: "jsonv2",
-        countrycodes: "hr",
-        limit: @limit,
-        addressdetails: 1
-      ],
-      headers: [{"user-agent", user_agent()}],
-      receive_timeout: :timer.seconds(5),
-      retry: false
-    ]
-    |> Keyword.merge(Application.get_env(:dogo, :nominatim_req_options, []))
-    |> Req.get()
-    |> handle_response()
+    options =
+      Keyword.merge(
+        [
+          url: endpoint(),
+          params: [
+            q: query,
+            format: "jsonv2",
+            countrycodes: "hr",
+            limit: @limit,
+            addressdetails: 1
+          ],
+          headers: [{"user-agent", user_agent()}],
+          receive_timeout: :timer.seconds(5),
+          retry: false
+        ],
+        Application.get_env(:dogo, :nominatim_req_options, [])
+      )
+
+    Dogo.Telemetry.external_request(:nominatim, fn ->
+      options |> Req.get() |> handle_response()
+    end)
   end
 
   defp handle_response({:ok, %Req.Response{status: 200, body: body}}) when is_list(body) do

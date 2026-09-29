@@ -53,10 +53,11 @@ defmodule Dogo.Import.Overpass.HTTP do
   end
 
   defp run(options) when is_list(options) do
-    options
-    |> Keyword.merge(Application.get_env(:dogo, :overpass_req_options, []))
-    |> Req.request()
-    |> handle_response()
+    options = Keyword.merge(options, Application.get_env(:dogo, :overpass_req_options, []))
+
+    Dogo.Telemetry.external_request(:overpass, fn ->
+      options |> Req.request() |> handle_response()
+    end)
   end
 
   @doc """

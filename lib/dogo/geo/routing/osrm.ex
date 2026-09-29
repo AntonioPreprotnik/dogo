@@ -46,16 +46,21 @@ defmodule Dogo.Geo.Routing.OSRM do
     coordinates =
       Enum.map_join([origin | destinations], ";", fn {lon, lat} -> "#{lon},#{lat}" end)
 
-    [
-      url: endpoint() <> coordinates,
-      params: [sources: 0, annotations: "duration,distance"],
-      headers: [{"user-agent", user_agent()}],
-      receive_timeout: @timeout_ms,
-      retry: false
-    ]
-    |> Keyword.merge(Application.get_env(:dogo, :osrm_req_options, []))
-    |> Req.get()
-    |> handle_response(length(destinations))
+    options =
+      Keyword.merge(
+        [
+          url: endpoint() <> coordinates,
+          params: [sources: 0, annotations: "duration,distance"],
+          headers: [{"user-agent", user_agent()}],
+          receive_timeout: @timeout_ms,
+          retry: false
+        ],
+        Application.get_env(:dogo, :osrm_req_options, [])
+      )
+
+    Dogo.Telemetry.external_request(:osrm, fn ->
+      options |> Req.get() |> handle_response(length(destinations))
+    end)
   end
 
   defp handle_response({:ok, %Req.Response{status: 200, body: body}}, count)
