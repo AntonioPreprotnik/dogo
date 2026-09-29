@@ -17,7 +17,7 @@ msgid "%{count} h"
 msgstr "%{count} Std."
 
 #: lib/dogo_web/components/beach_components.ex:180
-#: lib/dogo_web/live/beach_map_live.ex:508
+#: lib/dogo_web/live/beach_map_live.ex:528
 #, elixir-autogen, elixir-format
 msgid "%{count} km"
 msgstr "%{count} km"
@@ -42,8 +42,8 @@ msgstr "%{hours} Std. %{minutes} Min."
 msgid "Actions"
 msgstr "Aktionen"
 
-#: lib/dogo_web/live/beach_detail_live.ex:87
-#: lib/dogo_web/live/beach_map_live.ex:484
+#: lib/dogo_web/live/beach_detail_live.ex:80
+#: lib/dogo_web/live/beach_map_live.ex:504
 #, elixir-autogen, elixir-format
 msgid "Amenities"
 msgstr "Ausstattung"
@@ -54,7 +54,7 @@ msgstr "Ausstattung"
 msgid "Attempting to reconnect"
 msgstr "Verbindung wird wiederhergestellt"
 
-#: lib/dogo_web/live/beach_detail_live.ex:48
+#: lib/dogo_web/live/beach_detail_live.ex:41
 #, elixir-autogen, elixir-format
 msgid "Back to map"
 msgstr "Zurück zur Karte"
@@ -74,17 +74,17 @@ msgstr "Strandstandorte:"
 msgid "Bins"
 msgstr "Mülleimer"
 
-#: lib/dogo_web/live/beach_map_live.ex:519
+#: lib/dogo_web/live/beach_map_live.ex:539
 #, elixir-autogen, elixir-format
 msgid "Clear filters"
 msgstr "Filter zurücksetzen"
 
-#: lib/dogo_web/live/beach_map_live.ex:636
+#: lib/dogo_web/live/beach_map_live.ex:656
 #, elixir-autogen, elixir-format
 msgid "Closest to map centre"
 msgstr "Am nächsten zur Kartenmitte"
 
-#: lib/dogo_web/live/beach_map_live.ex:635
+#: lib/dogo_web/live/beach_map_live.ex:655
 #, elixir-autogen, elixir-format
 msgid "Closest to you"
 msgstr "Am nächsten zu dir"
@@ -94,7 +94,7 @@ msgstr "Am nächsten zu dir"
 msgid "Concrete"
 msgstr "Beton"
 
-#: lib/dogo_web/live/beach_detail_live.ex:71
+#: lib/dogo_web/live/beach_detail_live.ex:64
 #, elixir-autogen, elixir-format
 msgid "Coordinates"
 msgstr "Koordinaten"
@@ -109,13 +109,13 @@ msgstr "Hundestrand"
 msgid "Dog shower"
 msgstr "Hundedusche"
 
-#: lib/dogo_web/live/beach_map_live.ex:464
+#: lib/dogo_web/live/beach_map_live.ex:484
 #, elixir-autogen, elixir-format
 msgid "Dog status"
 msgstr "Hunde erlaubt?"
 
 #: lib/dogo_web/components/layouts/root.html.heex:17
-#: lib/dogo_web/live/beach_map_live.ex:451
+#: lib/dogo_web/live/beach_map_live.ex:471
 #, elixir-autogen, elixir-format
 msgid "Dog-friendly beaches"
 msgstr "Hundefreundliche Strände"
@@ -135,7 +135,7 @@ msgstr "Hunde nicht erlaubt"
 msgid "Drinking water"
 msgstr "Trinkwasser"
 
-#: lib/dogo_web/live/beach_map_live.ex:48
+#: lib/dogo_web/live/beach_map_live.ex:49
 #, elixir-autogen, elixir-format
 msgid "Map"
 msgstr "Karte"
@@ -145,27 +145,28 @@ msgstr "Karte"
 msgid "Mixed"
 msgstr "Gemischt"
 
-#: lib/dogo_web/live/beach_detail_live.ex:109
+#: lib/dogo_web/live/beach_detail_live.ex:102
+#: lib/dogo_web/offline_snapshot.ex:46
 #, elixir-autogen, elixir-format
 msgid "Navigate"
 msgstr "Navigieren"
 
-#: lib/dogo_web/live/beach_map_live.ex:792
+#: lib/dogo_web/live/beach_map_live.ex:824
 #, elixir-autogen, elixir-format
 msgid "No beach in this part of the map matches the filters."
 msgstr "Kein Strand in diesem Kartenausschnitt passt zu den Filtern."
 
-#: lib/dogo_web/live/beach_map_live.ex:794
+#: lib/dogo_web/live/beach_map_live.ex:826
 #, elixir-autogen, elixir-format
 msgid "No beaches in this part of the map. Move or zoom out."
 msgstr "Keine Strände in diesem Kartenausschnitt. Verschiebe die Karte oder zoome heraus."
 
-#: lib/dogo_web/live/beach_map_live.ex:496
+#: lib/dogo_web/live/beach_map_live.ex:516
 #, elixir-autogen, elixir-format
 msgid "No ferry"
 msgstr "Ohne Fähre"
 
-#: lib/dogo_web/live/beach_map_live.ex:576
+#: lib/dogo_web/live/beach_map_live.ex:596
 #, elixir-autogen, elixir-format
 msgid "No place with that name in Croatia."
 msgstr "Kein Ort mit diesem Namen in Kroatien."
@@ -175,7 +176,7 @@ msgstr "Kein Ort mit diesem Namen in Kroatien."
 msgid "ODbL licence."
 msgstr "ODbL-Lizenz."
 
-#: lib/dogo_web/live/beach_map_live.ex:735
+#: lib/dogo_web/live/beach_map_live.ex:755
 #, elixir-autogen, elixir-format
 msgid "Open details of the selected beach"
 msgstr "Details des ausgewählten Strands öffnen"
@@ -190,12 +191,12 @@ msgstr "Parkplatz"
 msgid "Pebble"
 msgstr "Kies"
 
-#: lib/dogo_web/live/beach_map_live.ex:579
+#: lib/dogo_web/live/beach_map_live.ex:599
 #, elixir-autogen, elixir-format
 msgid "Place search is not working right now. Move the map manually."
 msgstr "Die Ortssuche funktioniert gerade nicht. Verschiebe die Karte manuell."
 
-#: lib/dogo_web/live/beach_map_live.ex:500
+#: lib/dogo_web/live/beach_map_live.ex:520
 #, elixir-autogen, elixir-format
 msgid "Radius"
 msgstr "Umkreis"
@@ -210,12 +211,12 @@ msgstr "Fels"
 msgid "Sand"
 msgstr "Sand"
 
-#: lib/dogo_web/live/beach_map_live.ex:560
+#: lib/dogo_web/live/beach_map_live.ex:580
 #, elixir-autogen, elixir-format
 msgid "Search for a place"
 msgstr "Ort suchen"
 
-#: lib/dogo_web/live/beach_map_live.ex:573
+#: lib/dogo_web/live/beach_map_live.ex:593
 #, elixir-autogen, elixir-format
 msgid "Searching…"
 msgstr "Suche…"
@@ -230,29 +231,29 @@ msgstr "Schatten"
 msgid "Something went wrong!"
 msgstr "Etwas ist schiefgelaufen!"
 
-#: lib/dogo_web/live/beach_detail_live.ex:80
+#: lib/dogo_web/live/beach_detail_live.ex:73
 #, elixir-autogen, elixir-format
 msgid "Source"
 msgstr "Quelle"
 
-#: lib/dogo_web/live/beach_map_live.ex:646
-#: lib/dogo_web/live/beach_map_live.ex:718
+#: lib/dogo_web/live/beach_map_live.ex:666
+#: lib/dogo_web/live/beach_map_live.ex:738
 #, elixir-autogen, elixir-format
 msgid "Straight-line distance"
 msgstr "Luftlinie"
 
-#: lib/dogo_web/live/beach_map_live.ex:719
+#: lib/dogo_web/live/beach_map_live.ex:739
 #, elixir-autogen, elixir-format
 msgid "Straight-line distance; driving time unavailable"
 msgstr "Luftlinie; Fahrzeit nicht verfügbar"
 
-#: lib/dogo_web/live/beach_detail_live.ex:66
-#: lib/dogo_web/live/beach_map_live.ex:474
+#: lib/dogo_web/live/beach_detail_live.ex:59
+#: lib/dogo_web/live/beach_map_live.ex:494
 #, elixir-autogen, elixir-format
 msgid "Surface"
 msgstr "Untergrund"
 
-#: lib/dogo_web/live/beach_map_live.ex:529
+#: lib/dogo_web/live/beach_map_live.ex:549
 #, elixir-autogen, elixir-format
 msgid "The background map is not loading. The beach list and distances still work."
 msgstr "Die Hintergrundkarte lädt nicht. Strandliste und Entfernungen funktionieren weiterhin."
@@ -262,7 +263,7 @@ msgstr "Die Hintergrundkarte lädt nicht. Strandliste und Entfernungen funktioni
 msgid "The data is for demonstration. Dog-related attributes are partly generated and do not reflect real rules. Check local regulations before you travel."
 msgstr "Die Daten dienen nur zur Demonstration. Angaben zu Hunden sind teilweise generiert und geben keine echten Regeln wieder. Prüfe vor der Reise die örtlichen Vorschriften."
 
-#: lib/dogo_web/live/beach_map_live.ex:777
+#: lib/dogo_web/live/beach_map_live.ex:809
 #, elixir-autogen, elixir-format
 msgid "This browser does not offer location. Type a place or move the map."
 msgstr "Dieser Browser bietet keine Standortbestimmung. Gib einen Ort ein oder verschiebe die Karte."
@@ -277,7 +278,7 @@ msgstr "Dieser Wert stammt aus OpenStreetMap."
 msgid "This value was generated for the demo."
 msgstr "Dieser Wert wurde für die Demo generiert."
 
-#: lib/dogo_web/live/beach_map_live.ex:567
+#: lib/dogo_web/live/beach_map_live.ex:587
 #, elixir-autogen, elixir-format
 msgid "Type a place, e.g. Split"
 msgstr "Ort eingeben, z. B. Split"
@@ -288,18 +289,19 @@ msgstr "Ort eingeben, z. B. Split"
 msgid "Unknown"
 msgstr "Unbekannt"
 
-#: lib/dogo_web/live/beach_detail_live.ex:53
-#: lib/dogo_web/live/beach_map_live.ex:689
+#: lib/dogo_web/live/beach_detail_live.ex:46
+#: lib/dogo_web/live/beach_map_live.ex:709
+#: lib/dogo_web/offline_snapshot.ex:55
 #, elixir-autogen, elixir-format
 msgid "Unnamed beach"
 msgstr "Strand ohne Namen"
 
-#: lib/dogo_web/live/beach_map_live.ex:458
+#: lib/dogo_web/live/beach_map_live.ex:478
 #, elixir-autogen, elixir-format
 msgid "Visible: %{count}"
 msgstr "Sichtbar: %{count}"
 
-#: lib/dogo_web/live/beach_map_live.ex:454
+#: lib/dogo_web/live/beach_map_live.ex:474
 #, elixir-autogen, elixir-format
 msgid "Visible: %{count} — grouped, zoom in for individual beaches"
 msgstr "Sichtbar: %{count} — gruppiert, zoome für einzelne Strände"
@@ -309,22 +311,22 @@ msgstr "Sichtbar: %{count} — gruppiert, zoome für einzelne Strände"
 msgid "We can't find the internet"
 msgstr "Keine Internetverbindung"
 
-#: lib/dogo_web/live/beach_map_live.ex:772
+#: lib/dogo_web/live/beach_map_live.ex:804
 #, elixir-autogen, elixir-format
 msgid "Without your location we measure from the map centre. Type a place or move the map."
 msgstr "Ohne deinen Standort messen wir ab der Kartenmitte. Gib einen Ort ein oder verschiebe die Karte."
 
-#: lib/dogo_web/live/beach_map_live.ex:786
+#: lib/dogo_web/live/beach_map_live.ex:818
 #, elixir-autogen, elixir-format
 msgid "Your location could not be retrieved. Type a place or move the map."
 msgstr "Dein Standort konnte nicht ermittelt werden. Gib einen Ort ein oder verschiebe die Karte."
 
-#: lib/dogo_web/live/beach_map_live.ex:781
+#: lib/dogo_web/live/beach_map_live.ex:813
 #, elixir-autogen, elixir-format
 msgid "Your location did not arrive in time. Indoors, GPS often stays quiet — type a place or move the map."
 msgstr "Dein Standort kam nicht rechtzeitig an. In Innenräumen schweigt GPS oft — gib einen Ort ein oder verschiebe die Karte."
 
-#: lib/dogo_web/live/beach_map_live.ex:701
+#: lib/dogo_web/live/beach_map_live.ex:721
 #, elixir-autogen, elixir-format
 msgid "across the sea"
 msgstr "über das Meer"
@@ -344,7 +346,7 @@ msgstr "aus OSM"
 msgid "generated"
 msgstr "generiert"
 
-#: lib/dogo_web/live/beach_map_live.ex:502
+#: lib/dogo_web/live/beach_map_live.ex:522
 #, elixir-autogen, elixir-format
 msgid "no limit"
 msgstr "ohne Begrenzung"
@@ -375,32 +377,42 @@ msgstr "Systemdesign folgen"
 msgid "Light theme"
 msgstr "Helles Design"
 
-#: lib/dogo_web/live/beach_map_live.ex:546
+#: lib/dogo_web/live/beach_map_live.ex:566
 #, elixir-autogen, elixir-format
 msgid "Until then we measure from the map centre."
 msgstr "Bis dahin messen wir ab der Kartenmitte."
 
-#: lib/dogo_web/live/beach_map_live.ex:543
+#: lib/dogo_web/live/beach_map_live.ex:563
 #, elixir-autogen, elixir-format
 msgid "Use my location"
 msgstr "Meinen Standort verwenden"
 
-#: lib/dogo_web/live/beach_map_live.ex:542
+#: lib/dogo_web/live/beach_map_live.ex:562
 #, elixir-autogen, elixir-format
 msgid "Waiting for location…"
 msgstr "Warte auf Standort…"
 
-#: lib/dogo_web/live/beach_map_live.ex:649
+#: lib/dogo_web/live/beach_map_live.ex:669
 #, elixir-autogen, elixir-format
 msgid "Driving time"
 msgstr "Fahrzeit"
 
-#: lib/dogo_web/live/beach_map_live.ex:660
+#: lib/dogo_web/live/beach_map_live.ex:680
 #, elixir-autogen, elixir-format
 msgid "Driving time is not available yet; sorted by straight-line distance."
 msgstr "Fahrzeit noch nicht verfügbar; nach Luftlinie sortiert."
 
-#: lib/dogo_web/live/beach_map_live.ex:640
+#: lib/dogo_web/live/beach_map_live.ex:660
 #, elixir-autogen, elixir-format
 msgid "Sort"
 msgstr "Sortierung"
+
+#: lib/dogo_web/offline_snapshot.ex:43
+#, elixir-autogen, elixir-format
+msgid "No connection. These are the last results, saved at %{time}."
+msgstr "Keine Verbindung. Das sind die letzten Ergebnisse, gespeichert um %{time}."
+
+#: lib/dogo_web/offline_snapshot.ex:39
+#, elixir-autogen, elixir-format
+msgid "Offline"
+msgstr "Offline"

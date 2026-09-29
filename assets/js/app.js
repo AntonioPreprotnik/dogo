@@ -26,6 +26,7 @@ import {hooks as colocatedHooks} from "phoenix-colocated/dogo"
 import topbar from "../vendor/topbar"
 import BeachMap from "./hooks/map"
 import BeachMiniMap from "./hooks/mini_map"
+import {setupOffline} from "./offline"
 
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
@@ -38,6 +39,10 @@ const liveSocket = new LiveSocket("/live", Socket, {
 topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
 window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
 window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
+
+// Zadnji rezultati za rad bez mreze; mora prije connect(), da uhvati i
+// prvi neuspjeli pokusaj spajanja.
+setupOffline(liveSocket)
 
 // connect if there are any LiveViews on the page
 liveSocket.connect()

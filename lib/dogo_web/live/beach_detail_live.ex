@@ -33,13 +33,6 @@ defmodule DogoWeb.BeachDetailLive do
     }
   end
 
-  # Google Maps radi svugdje, Apple Maps je ugodniji na iOS-u. Oba primaju
-  # koordinate izravno, pa ne ovisimo o tome je li plaža uopće u njihovoj bazi.
-  defp google_maps_url(lat, lon),
-    do: "https://www.google.com/maps/dir/?api=1&destination=#{lat},#{lon}"
-
-  defp apple_maps_url(lat, lon), do: "https://maps.apple.com/?daddr=#{lat},#{lon}"
-
   @impl true
   def render(assigns) do
     ~H"""

@@ -59,6 +59,17 @@ defmodule DogoWeb.PWATest do
       # Chrome nudi instalaciju samo ako service worker ima fetch handler.
       assert conn.resp_body =~ "addEventListener(\"fetch\""
     end
+
+    # E6-S3. Ponasanje service workera provjereno je rucno u pregledniku
+    # (opis u commitu); ovdje se zakljucava ono sto se lako pokvari izmjenom.
+    test "service worker cacheira app shell, ali ne websocket ni tuđe domene", %{conn: conn} do
+      sw = conn |> get("/sw.js") |> Map.fetch!(:resp_body)
+
+      assert sw =~ ~s|const SHELL_URL = "/"|
+      assert sw =~ ~s|url.pathname.startsWith("/live")|
+      assert sw =~ "url.origin !== self.location.origin"
+      assert sw =~ ~s|request.method !== "GET"|
+    end
   end
 
   describe "stranica" do

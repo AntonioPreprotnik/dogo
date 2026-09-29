@@ -22,6 +22,7 @@ defmodule DogoWeb.BeachMapLive do
   alias Dogo.Geo.Routing
   alias DogoWeb.BeachFilters
   alias DogoWeb.GeoJSON
+  alias DogoWeb.OfflineSnapshot
 
   # Cijeli Jadran stane u ovaj pogled.
   @default_center %{lon: 16.5, lat: 43.7}
@@ -191,7 +192,10 @@ defmodule DogoWeb.BeachMapLive do
   # udaljenoscu; ovo je dodatak, ne uvjet.
   def handle_async(:driving, {:ok, {ids, {:ok, legs}}}, socket) do
     if ids == socket.assigns.driving_for do
-      {:noreply, assign(socket, :driving, Map.new(Enum.zip(ids, legs)))}
+      {:noreply,
+       socket
+       |> assign(:driving, Map.new(Enum.zip(ids, legs)))
+       |> push_snapshot()}
     else
       # Korisnik je u meduvremenu pomaknuo kartu; ovaj odgovor vise ne opisuje
       # ono sto je na ekranu.
@@ -252,6 +256,7 @@ defmodule DogoWeb.BeachMapLive do
         )
         |> push_event("beaches", %{geojson: GeoJSON.feature_collection(beaches)})
         |> request_driving(reference)
+        |> push_snapshot()
 
       # Previse plaza da bi se svaka poslala: cijeli Jadran je oko 900 KB
       # GeoJSON-a po pomaku. Umjesto odrezanog skupa saljemo sazetak po mrezi,
@@ -270,6 +275,7 @@ defmodule DogoWeb.BeachMapLive do
         )
         |> push_event("clusters", %{geojson: GeoJSON.cluster_collection(clusters)})
         |> request_driving(reference)
+        |> push_snapshot()
     end
   end
 
@@ -365,6 +371,20 @@ defmodule DogoWeb.BeachMapLive do
     {timed, rest} = Enum.split_with(beaches, &driving[&1.id])
 
     Enum.sort_by(timed, &driving[&1.id].duration_s) ++ rest
+  end
+
+  # Sazetak za rad bez mreze (E6-S3). Prazna lista se ne salje: korisnik koji
+  # je pomaknuo kartu na pucinu ne smije izgubiti zadnje korisne rezultate.
+  defp push_snapshot(%{assigns: %{beaches: []}} = socket), do: socket
+
+  defp push_snapshot(socket) do
+    %{beaches: beaches, driving: driving, filters: filters} = socket.assigns
+
+    push_event(
+      socket,
+      "offline_snapshot",
+      OfflineSnapshot.build(ordered(beaches, driving, filters.sort), driving)
+    )
   end
 
   # Iznimka u rutiranju se hvata ovdje, a ne prepusta Tasku. Pad zadatka ispise
@@ -737,6 +757,18 @@ defmodule DogoWeb.BeachMapLive do
           </div>
         </aside>
       </div>
+
+      <%!-- Puni ga assets/js/offline.js iz IndexedDB-a kad socket nije
+            dostupan. LiveView ga ne dira, jer tada ionako ne radi. --%>
+      <section
+        id="offline-results"
+        data-role="offline-results"
+        phx-update="ignore"
+        aria-live="polite"
+        hidden
+        class="fixed inset-x-0 bottom-0 z-40 max-h-[70%] overflow-y-auto rounded-t-2xl border border-base-300 bg-base-100 shadow-2xl lg:inset-x-auto lg:right-6 lg:bottom-6 lg:w-96 lg:rounded-2xl"
+      >
+      </section>
     </Layouts.app>
     """
   end

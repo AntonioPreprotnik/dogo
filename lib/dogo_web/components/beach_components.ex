@@ -179,4 +179,15 @@ defmodule DogoWeb.BeachComponents do
   def format_distance(metres) do
     gettext("%{count} km", count: :erlang.float_to_binary(metres / 1_000, decimals: 1))
   end
+
+  @doc """
+  Link za navigaciju do koordinata.
+
+  Google Maps radi svugdje, Apple Maps je ugodniji na iOS-u. Oba primaju
+  koordinate izravno, pa ne ovisimo o tome je li plaža uopće u njihovoj bazi.
+  """
+  def google_maps_url(lat, lon),
+    do: "https://www.google.com/maps/dir/?api=1&destination=#{lat},#{lon}"
+
+  def apple_maps_url(lat, lon), do: "https://maps.apple.com/?daddr=#{lat},#{lon}"
 end
