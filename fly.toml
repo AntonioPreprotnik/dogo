@@ -5,10 +5,13 @@
 #   fly launch --no-deploy --copy-config
 #   fly mpg create --name dogo-db --region fra --enable-postgis-support
 #   fly mpg attach <CLUSTER ID> -a dogo-autumn-pine-4604
+#   fly mpg databases extensions enable postgis -c <CLUSTER ID> -d fly-db
+#   fly mpg databases extensions enable citext -c <CLUSTER ID> -d fly-db
 #   fly secrets set SECRET_KEY_BASE=$(mix phx.gen.secret)
 #
-# PostGIS se kod Managed Postgresa uključuje samo pri stvaranju clustera
-# (--enable-postgis-support); prva migracija radi CREATE EXTENSION postgis.
+# PostGIS mora biti dostupan već pri stvaranju clustera
+# (--enable-postgis-support). Korisnik aplikacije nije superuser, pa
+# ekstenzije uključuje Fly API; migracije ih (IF NOT EXISTS) samo preskoče.
 #
 # Admin (uređivanje plaža, uvozi, LiveDashboard na /admin), nakon prvog
 # deploya. Ispisuje privremenu lozinku, promijeni je na /admin/settings:
