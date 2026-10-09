@@ -96,4 +96,4 @@ Opcionalni epic E8 (administracija) nije dio ove verzije.
 - Ovisnost o javnim servisima (Overpass, OSRM, Nominatim), koji imaju
   ograničenja prometa.
 
-[1.0.0]: https://github.com/CHANGE-ME/dogo/releases/tag/v1.0.0
+[1.0.0]: https://github.com/AntonioPreprotnik/dogo/releases/tag/v1.0.0
