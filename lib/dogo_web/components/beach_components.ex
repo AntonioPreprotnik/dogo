@@ -78,23 +78,16 @@ defmodule DogoWeb.BeachComponents do
   end
 
   @doc """
-  Odakle dolazi status za pse: iz OSM-a ili je generiran.
+  Odakle dolazi status za pse: iz OSM-a, generiran ili ručno unesen.
 
   Bez ove oznake demo podatak izgleda kao provjereno pravilo, što je upravo
   ono što disclaimer pokušava spriječiti.
   """
-  attr :source, :atom, required: true, values: [:osm, :generated]
+  attr :source, :atom, required: true, values: [:osm, :generated, :manual]
 
   def dog_status_source(assigns) do
-    assigns =
-      assign(assigns,
-        label: if(assigns.source == :osm, do: gettext("from OSM"), else: gettext("generated")),
-        title:
-          if(assigns.source == :osm,
-            do: gettext("This value comes from OpenStreetMap."),
-            else: gettext("This value was generated for the demo.")
-          )
-      )
+    {label, title, icon} = source_texts(assigns.source)
+    assigns = assign(assigns, label: label, title: title, icon: icon)
 
     ~H"""
     <span
@@ -103,14 +96,20 @@ defmodule DogoWeb.BeachComponents do
       class="inline-flex items-center gap-1 text-xs text-base-content/70"
       title={@title}
     >
-      <.icon
-        name={if @source == :osm, do: "hero-check-badge", else: "hero-beaker"}
-        class="size-3.5"
-      />
+      <.icon name={@icon} class="size-3.5" />
       {@label}
     </span>
     """
   end
+
+  defp source_texts(:osm),
+    do: {gettext("from OSM"), gettext("This value comes from OpenStreetMap."), "hero-check-badge"}
+
+  defp source_texts(:manual),
+    do: {gettext("edited"), gettext("This value was entered by an administrator."), "hero-pencil"}
+
+  defp source_texts(_generated),
+    do: {gettext("generated"), gettext("This value was generated for the demo."), "hero-beaker"}
 
   @doc """
   Popis sadržaja plaže s oznakom postoji/ne postoji.

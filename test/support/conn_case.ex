@@ -17,6 +17,10 @@ defmodule DogoWeb.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  alias Dogo.Accounts
+  alias Dogo.Accounts.Scope
+  alias Dogo.AccountsFixtures
+
   using do
     quote do
       # The default endpoint for testing
@@ -34,5 +38,42 @@ defmodule DogoWeb.ConnCase do
   setup tags do
     Dogo.DataCase.setup_sandbox(tags)
     {:ok, conn: Phoenix.ConnTest.build_conn()}
+  end
+
+  @doc """
+  Stvara admina i prijavljuje ga u `conn`.
+
+      setup :register_and_log_in_admin
+
+  U kontekst testa dodaje `conn`, `admin` i `scope`. Tag
+  `token_authenticated_at` postavlja vrijeme prijave (za sudo testove).
+  """
+  def register_and_log_in_admin(%{conn: conn} = context) do
+    admin = AccountsFixtures.admin_fixture()
+    scope = Scope.for_admin(admin)
+
+    opts =
+      context
+      |> Map.take([:token_authenticated_at])
+      |> Enum.into([])
+
+    %{conn: log_in_admin(conn, admin, opts), admin: admin, scope: scope}
+  end
+
+  @doc "Prijavljuje danog admina u `conn`."
+  def log_in_admin(conn, admin, opts \\ []) do
+    token = Accounts.generate_admin_session_token(admin)
+
+    maybe_set_token_authenticated_at(token, opts[:token_authenticated_at])
+
+    conn
+    |> Phoenix.ConnTest.init_test_session(%{})
+    |> Plug.Conn.put_session(:admin_token, token)
+  end
+
+  defp maybe_set_token_authenticated_at(_token, nil), do: nil
+
+  defp maybe_set_token_authenticated_at(token, authenticated_at) do
+    AccountsFixtures.override_token_authenticated_at(token, authenticated_at)
   end
 end

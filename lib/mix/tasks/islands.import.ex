@@ -12,7 +12,7 @@ defmodule Mix.Tasks.Islands.Import do
   """
   use Mix.Task
 
-  alias Dogo.Import.Jobs.ImportIslands
+  alias Dogo.Import
 
   @requirements ["app.start"]
 
@@ -25,7 +25,7 @@ defmodule Mix.Tasks.Islands.Import do
       |> maybe_put("min_area_km2", opts[:min_area])
       |> maybe_put("batch_size", opts[:batch_size])
 
-    case args |> ImportIslands.new() |> Oban.insert() do
+    case Import.enqueue_islands_import(args) do
       {:ok, job} -> Mix.shell().info("Uvoz otoka je u redu (job ##{job.id}).")
       {:error, reason} -> Mix.raise("Job nije ubacen u red: #{inspect(reason)}")
     end

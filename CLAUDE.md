@@ -22,6 +22,7 @@ Rad ide **story po story**: jedan story = jedna grana = jedan PR.
 | `Dogo.Beaches` | plaže: shema, prostorni upiti, filteri |
 | `Dogo.Geo` | geometrija i geografija: otoci, udaljenosti, bounding box |
 | `Dogo.Import` | uvoz podataka: Overpass klijent, Oban jobovi, demo atributi |
+| `Dogo.Accounts` | admini i njihove sesije (nema javnih korisnika, ADR 0010) |
 
 Web sloj nikada ne piše Ecto upite izravno — sve ide kroz kontekst.
 

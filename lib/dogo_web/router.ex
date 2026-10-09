@@ -1,6 +1,8 @@
 defmodule DogoWeb.Router do
   use DogoWeb, :router
 
+  import DogoWeb.AdminAuth
+
   import Phoenix.LiveDashboard.Router
 
   pipeline :browser do
@@ -17,8 +19,9 @@ defmodule DogoWeb.Router do
     plug :accepts, ["json"]
   end
 
-  pipeline :dashboard_auth do
-    plug DogoWeb.Plugs.DashboardAuth
+  # Samo admin rute citaju sesiju admina; javni dio ne dira tablice admina.
+  pipeline :admin do
+    plug :fetch_current_scope_for_admin
   end
 
   scope "/", DogoWeb do
@@ -39,15 +42,44 @@ defmodule DogoWeb.Router do
     get "/health", HealthController, :index
   end
 
-  # LiveDashboard u produkciji, iza basic autha. Bez postavljenih
-  # vjerodajnica ruta vraca 404 (DogoWeb.Plugs.DashboardAuth).
+  # Admin (E8-S1, ADR 0010). Prijava je izvan zasticenog bloka; sve ostalo
+  # trazi prijavljenog admina i kroz plug (HTTP) i kroz on_mount (websocket).
+  scope "/admin", DogoWeb do
+    pipe_through [:browser, :admin]
+
+    live_session :admin_login,
+      on_mount: [DogoWeb.Locale, {DogoWeb.AdminAuth, :mount_current_scope}] do
+      live "/log-in", AdminLive.Login, :new
+    end
+
+    post "/log-in", AdminSessionController, :create
+    delete "/log-out", AdminSessionController, :delete
+  end
+
+  scope "/admin", DogoWeb do
+    pipe_through [:browser, :admin, :require_authenticated_admin]
+
+    live_session :admin,
+      on_mount: [DogoWeb.Locale, {DogoWeb.AdminAuth, :require_authenticated}] do
+      live "/beaches", AdminLive.BeachIndex, :index
+      live "/beaches/new", AdminLive.BeachForm, :new
+      live "/beaches/:id/edit", AdminLive.BeachForm, :edit
+      live "/imports", AdminLive.Imports, :index
+      live "/settings", AdminLive.Settings, :edit
+    end
+
+    post "/update-password", AdminSessionController, :update_password
+  end
+
+  # LiveDashboard u produkciji, za prijavljenog admina.
   scope "/admin" do
-    pipe_through [:browser, :dashboard_auth]
+    pipe_through [:browser, :admin, :require_authenticated_admin]
 
     live_dashboard "/dashboard",
       metrics: DogoWeb.Telemetry,
       ecto_repos: [Dogo.Repo],
-      live_session_name: :admin_dashboard
+      live_session_name: :admin_dashboard,
+      on_mount: [{DogoWeb.AdminAuth, :require_authenticated}]
   end
 
   # Enable LiveDashboard and Swoosh mailbox preview in development

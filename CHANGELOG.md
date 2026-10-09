@@ -4,6 +4,26 @@ Sve bitne promjene projekta. Format prati
 [Keep a Changelog](https://keepachangelog.com/hr/1.1.0/), a verzije
 [Semantic Versioning](https://semver.org/lang/hr/).
 
+## [Unreleased]
+
+### Administracija (E8-S1)
+
+- Admin sučelje na `/admin`: popis plaža s pretragom i stranicama, ručno
+  dodavanje, ispravljanje i brisanje plaža, ponovno pokretanje uvoza plaža i
+  otoka s pregledom zadnjih jobova. Sučelje je na hrvatskom, engleskom i
+  njemačkom.
+- Prijava admina prema `phx.gen.auth`, bez registracije i magic linkova. Admin
+  se stvara iz konzole (`mix admin.create`, `Dogo.Release.create_admin/1`)
+  ([ADR 0010](docs/adr/0010-admin-bez-registracije.md)).
+- Ručno ispravljenu plažu uvoz više ne mijenja, a status koji je unio admin
+  označen je kao "ručno uneseno"
+  ([ADR 0011](docs/adr/0011-rucne-izmjene-imaju-prednost-pred-uvozom.md)).
+
+### Promijenjeno
+
+- LiveDashboard (`/admin/dashboard`) je iza prijave admina umjesto basic
+  autha. Varijable `DASHBOARD_USER` i `DASHBOARD_PASSWORD` više se ne koriste.
+
 ## [1.0.0] — 2026-09-29
 
 Prva cjelovita verzija: svi storyji faza 0–4 iz [`docs/PLAN.md`](docs/PLAN.md).

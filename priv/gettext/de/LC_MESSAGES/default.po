@@ -11,28 +11,28 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: lib/dogo_web/components/beach_components.ex:166
+#: lib/dogo_web/components/beach_components.ex:165
 #, elixir-autogen, elixir-format
 msgid "%{count} h"
 msgstr "%{count} Std."
 
-#: lib/dogo_web/components/beach_components.ex:180
+#: lib/dogo_web/components/beach_components.ex:179
 #: lib/dogo_web/live/beach_map_live.ex:528
 #, elixir-autogen, elixir-format
 msgid "%{count} km"
 msgstr "%{count} km"
 
-#: lib/dogo_web/components/beach_components.ex:176
+#: lib/dogo_web/components/beach_components.ex:175
 #, elixir-autogen, elixir-format
 msgid "%{count} m"
 msgstr "%{count} m"
 
-#: lib/dogo_web/components/beach_components.ex:158
+#: lib/dogo_web/components/beach_components.ex:157
 #, elixir-autogen, elixir-format
 msgid "%{count} min"
 msgstr "%{count} Min."
 
-#: lib/dogo_web/components/beach_components.ex:167
+#: lib/dogo_web/components/beach_components.ex:166
 #, elixir-autogen, elixir-format
 msgid "%{hours} h %{minutes} min"
 msgstr "%{hours} Std. %{minutes} Min."
@@ -42,14 +42,15 @@ msgstr "%{hours} Std. %{minutes} Min."
 msgid "Actions"
 msgstr "Aktionen"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:76
 #: lib/dogo_web/live/beach_detail_live.ex:80
 #: lib/dogo_web/live/beach_map_live.ex:504
 #, elixir-autogen, elixir-format
 msgid "Amenities"
 msgstr "Ausstattung"
 
-#: lib/dogo_web/components/layouts.ex:154
-#: lib/dogo_web/components/layouts.ex:166
+#: lib/dogo_web/components/layouts.ex:226
+#: lib/dogo_web/components/layouts.ex:238
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr "Verbindung wird wiederhergestellt"
@@ -64,7 +65,7 @@ msgstr "Zurück zur Karte"
 msgid "Beach"
 msgstr "Strand"
 
-#: lib/dogo_web/components/layouts.ex:113
+#: lib/dogo_web/components/layouts.ex:185
 #, elixir-autogen, elixir-format
 msgid "Beach locations:"
 msgstr "Strandstandorte:"
@@ -171,7 +172,7 @@ msgstr "Ohne Fähre"
 msgid "No place with that name in Croatia."
 msgstr "Kein Ort mit diesem Namen in Kroatien."
 
-#: lib/dogo_web/components/layouts.ex:118
+#: lib/dogo_web/components/layouts.ex:190
 #, elixir-autogen, elixir-format
 msgid "ODbL licence."
 msgstr "ODbL-Lizenz."
@@ -226,7 +227,7 @@ msgstr "Suche…"
 msgid "Shade"
 msgstr "Schatten"
 
-#: lib/dogo_web/components/layouts.ex:161
+#: lib/dogo_web/components/layouts.ex:233
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "Etwas ist schiefgelaufen!"
@@ -247,6 +248,7 @@ msgstr "Luftlinie"
 msgid "Straight-line distance; driving time unavailable"
 msgstr "Luftlinie; Fahrzeit nicht verfügbar"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:70
 #: lib/dogo_web/live/beach_detail_live.ex:59
 #: lib/dogo_web/live/beach_map_live.ex:494
 #, elixir-autogen, elixir-format
@@ -258,7 +260,7 @@ msgstr "Untergrund"
 msgid "The background map is not loading. The beach list and distances still work."
 msgstr "Die Hintergrundkarte lädt nicht. Strandliste und Entfernungen funktionieren weiterhin."
 
-#: lib/dogo_web/components/layouts.ex:121
+#: lib/dogo_web/components/layouts.ex:193
 #, elixir-autogen, elixir-format
 msgid "The data is for demonstration. Dog-related attributes are partly generated and do not reflect real rules. Check local regulations before you travel."
 msgstr "Die Daten dienen nur zur Demonstration. Angaben zu Hunden sind teilweise generiert und geben keine echten Regeln wieder. Prüfe vor der Reise die örtlichen Vorschriften."
@@ -268,12 +270,12 @@ msgstr "Die Daten dienen nur zur Demonstration. Angaben zu Hunden sind teilweise
 msgid "This browser does not offer location. Type a place or move the map."
 msgstr "Dieser Browser bietet keine Standortbestimmung. Gib einen Ort ein oder verschiebe die Karte."
 
-#: lib/dogo_web/components/beach_components.ex:94
+#: lib/dogo_web/components/beach_components.ex:106
 #, elixir-autogen, elixir-format
 msgid "This value comes from OpenStreetMap."
 msgstr "Dieser Wert stammt aus OpenStreetMap."
 
-#: lib/dogo_web/components/beach_components.ex:95
+#: lib/dogo_web/components/beach_components.ex:112
 #, elixir-autogen, elixir-format
 msgid "This value was generated for the demo."
 msgstr "Dieser Wert wurde für die Demo generiert."
@@ -289,6 +291,8 @@ msgstr "Ort eingeben, z. B. Split"
 msgid "Unknown"
 msgstr "Unbekannt"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:113
+#: lib/dogo_web/live/admin_live/beach_index.ex:41
 #: lib/dogo_web/live/beach_detail_live.ex:46
 #: lib/dogo_web/live/beach_map_live.ex:709
 #: lib/dogo_web/offline_snapshot.ex:55
@@ -306,7 +310,7 @@ msgstr "Sichtbar: %{count}"
 msgid "Visible: %{count} — grouped, zoom in for individual beaches"
 msgstr "Sichtbar: %{count} — gruppiert, zoome für einzelne Strände"
 
-#: lib/dogo_web/components/layouts.ex:149
+#: lib/dogo_web/components/layouts.ex:221
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr "Keine Internetverbindung"
@@ -336,12 +340,12 @@ msgstr "über das Meer"
 msgid "close"
 msgstr "schließen"
 
-#: lib/dogo_web/components/beach_components.ex:91
+#: lib/dogo_web/components/beach_components.ex:106
 #, elixir-autogen, elixir-format
 msgid "from OSM"
 msgstr "aus OSM"
 
-#: lib/dogo_web/components/beach_components.ex:91
+#: lib/dogo_web/components/beach_components.ex:112
 #, elixir-autogen, elixir-format
 msgid "generated"
 msgstr "generiert"
@@ -362,17 +366,17 @@ msgstr "Dogo — hundefreundliche Strände"
 msgid "Find the nearest beaches where your dog is welcome."
 msgstr "Finde die nächsten Strände, an denen dein Hund willkommen ist."
 
-#: lib/dogo_web/components/layouts.ex:205
+#: lib/dogo_web/components/layouts.ex:277
 #, elixir-autogen, elixir-format
 msgid "Dark theme"
 msgstr "Dunkles Design"
 
-#: lib/dogo_web/components/layouts.ex:187
+#: lib/dogo_web/components/layouts.ex:259
 #, elixir-autogen, elixir-format
 msgid "Follow system theme"
 msgstr "Systemdesign folgen"
 
-#: lib/dogo_web/components/layouts.ex:196
+#: lib/dogo_web/components/layouts.ex:268
 #, elixir-autogen, elixir-format
 msgid "Light theme"
 msgstr "Helles Design"
@@ -416,3 +420,377 @@ msgstr "Keine Verbindung. Das sind die letzten Ergebnisse, gespeichert um %{time
 #, elixir-autogen, elixir-format
 msgid "Offline"
 msgstr "Offline"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:19
+#, elixir-autogen, elixir-format
+msgid "%{count} beach"
+msgid_plural "%{count} beaches"
+msgstr[0] "%{count} Strand"
+msgstr[1] "%{count} Strände"
+
+#: lib/dogo_web/live/admin_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "Accounts are created by the operator; there is no sign-up."
+msgstr "Konten legt der Betreiber an; eine Registrierung gibt es nicht."
+
+#: lib/dogo_web/live/admin_live/login.ex:17
+#: lib/dogo_web/live/admin_live/login.ex:73
+#, elixir-autogen, elixir-format
+msgid "Administrator log in"
+msgstr "Anmeldung für Administratoren"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:21
+#, elixir-autogen, elixir-format
+msgid "All beaches"
+msgstr "Alle Strände"
+
+#: lib/dogo_web/live/admin_live/imports.ex:84
+#, elixir-autogen, elixir-format
+msgid "Attempts"
+msgstr "Versuche"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:131
+#, elixir-autogen, elixir-format
+msgid "Beach created."
+msgstr "Strand angelegt."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:129
+#, elixir-autogen, elixir-format
+msgid "Beach deleted."
+msgstr "Strand gelöscht."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:137
+#, elixir-autogen, elixir-format
+msgid "Beach saved."
+msgstr "Strand gespeichert."
+
+#: lib/dogo_web/components/layouts.ex:79
+#: lib/dogo_web/live/admin_live/beach_index.ex:17
+#: lib/dogo_web/live/admin_live/beach_index.ex:107
+#: lib/dogo_web/live/admin_live/imports.ex:31
+#: lib/dogo_web/live/admin_live/imports.ex:146
+#, elixir-autogen, elixir-format
+msgid "Beaches"
+msgstr "Strände"
+
+#: lib/dogo_web/live/admin_live/settings.ex:22
+#, elixir-autogen, elixir-format
+msgid "Change the password for %{email}."
+msgstr "Passwort für %{email} ändern."
+
+#: lib/dogo_web/live/admin_live/settings.ex:51
+#, elixir-autogen, elixir-format
+msgid "Confirm new password"
+msgstr "Neues Passwort bestätigen"
+
+#: lib/dogo_web/components/layouts.ex:81
+#, elixir-autogen, elixir-format
+msgid "Dashboard"
+msgstr "Dashboard"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:70
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Löschen"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:164
+#, elixir-autogen, elixir-format
+msgid "Delete this beach?"
+msgstr "Diesen Strand löschen?"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:167
+#, elixir-autogen, elixir-format
+msgid "Delete this beach? It comes from OpenStreetMap and will return with the next import."
+msgstr "Diesen Strand löschen? Er stammt aus OpenStreetMap und kommt beim nächsten Import zurück."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:64
+#: lib/dogo_web/live/admin_live/beach_index.ex:47
+#, elixir-autogen, elixir-format
+msgid "Dogs"
+msgstr "Hunde"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:60
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:53
+#, elixir-autogen, elixir-format
+msgid "Edited"
+msgstr "Bearbeitet"
+
+#: lib/dogo_web/live/admin_live/login.ex:39
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr "E-Mail"
+
+#: lib/dogo_web/live/admin_live/imports.ex:33
+#, elixir-autogen, elixir-format
+msgid "Fetches beaches from OpenStreetMap (Overpass)."
+msgstr "Lädt Strände aus OpenStreetMap (Overpass)."
+
+#: lib/dogo_web/live/admin_live/imports.ex:48
+#, elixir-autogen, elixir-format
+msgid "Fetches island polygons and assigns beaches to islands. Takes longer."
+msgstr "Lädt Inselpolygone und ordnet ihnen Strände zu. Dauert länger."
+
+#: lib/dogo_web/live/admin_live/imports.ex:81
+#, elixir-autogen, elixir-format
+msgid "Finished"
+msgstr "Beendet"
+
+#: lib/dogo_web/live/admin_live/imports.ex:70
+#, elixir-autogen, elixir-format
+msgid "Import"
+msgstr "Import"
+
+#: lib/dogo_web/live/admin_live/imports.ex:109
+#, elixir-autogen, elixir-format
+msgid "Import queued."
+msgstr "Import eingereiht."
+
+#: lib/dogo_web/components/layouts.ex:80
+#: lib/dogo_web/live/admin_live/imports.ex:23
+#: lib/dogo_web/live/admin_live/imports.ex:96
+#, elixir-autogen, elixir-format
+msgid "Imports"
+msgstr "Importe"
+
+#: lib/dogo_web/live/admin_live/imports.ex:25
+#, elixir-autogen, elixir-format
+msgid "Imports are idempotent. Beaches edited by hand are left unchanged."
+msgstr "Importe sind idempotent. Von Hand bearbeitete Strände bleiben unverändert."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:59
+#, elixir-autogen, elixir-format
+msgid "Invalid email or password."
+msgstr "Ungültige E-Mail-Adresse oder ungültiges Passwort."
+
+#: lib/dogo_web/live/admin_live/imports.ex:46
+#: lib/dogo_web/live/admin_live/imports.ex:147
+#, elixir-autogen, elixir-format
+msgid "Islands"
+msgstr "Inseln"
+
+#: lib/dogo_web/live/admin_live/login.ex:53
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in"
+msgstr "Angemeldet bleiben"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:49
+#, elixir-autogen, elixir-format
+msgid "Latitude"
+msgstr "Breitengrad"
+
+#: lib/dogo_web/live/admin_live/login.ex:55
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr "Anmelden"
+
+#: lib/dogo_web/admin_auth.ex:218
+#: lib/dogo_web/controllers/admin_session_controller.ex:37
+#, elixir-autogen, elixir-format
+msgid "Log in again to access this page."
+msgstr "Melde dich erneut an, um diese Seite zu öffnen."
+
+#: lib/dogo_web/live/admin_live/login.ex:20
+#, elixir-autogen, elixir-format
+msgid "Log in again to change sensitive settings."
+msgstr "Melde dich erneut an, um sensible Einstellungen zu ändern."
+
+#: lib/dogo_web/components/layouts.ex:106
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr "Abmelden"
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:44
+#, elixir-autogen, elixir-format
+msgid "Logged out."
+msgstr "Abgemeldet."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:50
+#, elixir-autogen, elixir-format
+msgid "Longitude"
+msgstr "Längengrad"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:46
+#: lib/dogo_web/live/admin_live/beach_index.ex:44
+#, elixir-autogen, elixir-format
+msgid "Municipality"
+msgstr "Gemeinde"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:45
+#: lib/dogo_web/live/admin_live/beach_index.ex:40
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Name"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:32
+#, elixir-autogen, elixir-format
+msgid "Name, municipality or OSM ID"
+msgstr "Name, Gemeinde oder OSM-ID"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:104
+#: lib/dogo_web/live/admin_live/beach_index.ex:23
+#, elixir-autogen, elixir-format
+msgid "New beach"
+msgstr "Neuer Strand"
+
+#: lib/dogo_web/live/admin_live/settings.ex:43
+#, elixir-autogen, elixir-format
+msgid "New password"
+msgstr "Neues Passwort"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:98
+#, elixir-autogen, elixir-format
+msgid "Next"
+msgstr "Weiter"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:77
+#, elixir-autogen, elixir-format
+msgid "No beaches match the search."
+msgstr "Kein Strand entspricht der Suche."
+
+#: lib/dogo_web/live/admin_live/imports.ex:65
+#, elixir-autogen, elixir-format
+msgid "No imports yet."
+msgstr "Noch keine Importe."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:90
+#, elixir-autogen, elixir-format
+msgid "Page %{page} of %{total}"
+msgstr "Seite %{page} von %{total}"
+
+#: lib/dogo_web/live/admin_live/login.ex:48
+#, elixir-autogen, elixir-format
+msgid "Password"
+msgstr "Passwort"
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:28
+#, elixir-autogen, elixir-format
+msgid "Password updated."
+msgstr "Passwort geändert."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:87
+#, elixir-autogen, elixir-format
+msgid "Previous"
+msgstr "Zurück"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:29
+#, elixir-autogen, elixir-format
+msgid "Public page"
+msgstr "Öffentliche Seite"
+
+#: lib/dogo_web/live/admin_live/imports.ex:80
+#, elixir-autogen, elixir-format
+msgid "Queued"
+msgstr "Eingereiht"
+
+#: lib/dogo_web/live/admin_live/imports.ex:63
+#, elixir-autogen, elixir-format
+msgid "Recent jobs"
+msgstr "Letzte Importe"
+
+#: lib/dogo_web/live/admin_live/imports.ex:42
+#: lib/dogo_web/live/admin_live/imports.ex:57
+#, elixir-autogen, elixir-format
+msgid "Run import"
+msgstr "Import starten"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:88
+#, elixir-autogen, elixir-format
+msgid "Save"
+msgstr "Speichern"
+
+#: lib/dogo_web/live/admin_live/settings.ex:56
+#, elixir-autogen, elixir-format
+msgid "Save password"
+msgstr "Passwort speichern"
+
+#: lib/dogo_web/components/layouts.ex:82
+#: lib/dogo_web/live/admin_live/settings.ex:21
+#: lib/dogo_web/live/admin_live/settings.ex:71
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: lib/dogo_web/live/admin_live/imports.ex:71
+#, elixir-autogen, elixir-format
+msgid "State"
+msgstr "Status"
+
+#: lib/dogo_web/live/admin_live/imports.ex:112
+#, elixir-autogen, elixir-format
+msgid "The import could not be queued."
+msgstr "Der Import konnte nicht eingereiht werden."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:32
+#, elixir-autogen, elixir-format
+msgid "The password was not changed."
+msgstr "Das Passwort wurde nicht geändert."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:39
+#, elixir-autogen, elixir-format
+msgid "This beach comes from the import. After you save, future imports will no longer change it."
+msgstr "Dieser Strand stammt aus dem Import. Nach dem Speichern ändern ihn künftige Importe nicht mehr."
+
+#: lib/dogo_web/live/admin_live/imports.ex:106
+#, elixir-autogen, elixir-format
+msgid "This import is already queued or running."
+msgstr "Dieser Import ist bereits eingereiht oder läuft."
+
+#: lib/dogo_web/components/beach_components.ex:109
+#, elixir-autogen, elixir-format
+msgid "This value was entered by an administrator."
+msgstr "Dieser Wert wurde von einer Administratorin oder einem Administrator eingetragen."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:14
+#, elixir-autogen, elixir-format
+msgid "Welcome back!"
+msgstr "Willkommen zurück!"
+
+#: lib/dogo_web/admin_auth.ex:203
+#: lib/dogo_web/admin_auth.ex:254
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr "Für diese Seite musst du dich anmelden."
+
+#: lib/dogo_web/components/beach_components.ex:109
+#, elixir-autogen, elixir-format
+msgid "edited"
+msgstr "bearbeitet"
+
+#: lib/dogo_web/live/admin_live/imports.ex:156
+#, elixir-autogen, elixir-format
+msgid "cancelled"
+msgstr "abgebrochen"
+
+#: lib/dogo_web/live/admin_live/imports.ex:154
+#, elixir-autogen, elixir-format
+msgid "completed"
+msgstr "abgeschlossen"
+
+#: lib/dogo_web/live/admin_live/imports.ex:155
+#, elixir-autogen, elixir-format
+msgid "failed"
+msgstr "fehlgeschlagen"
+
+#: lib/dogo_web/live/admin_live/imports.ex:152
+#, elixir-autogen, elixir-format
+msgid "running"
+msgstr "läuft"
+
+#: lib/dogo_web/live/admin_live/imports.ex:151
+#, elixir-autogen, elixir-format
+msgid "scheduled"
+msgstr "geplant"
+
+#: lib/dogo_web/live/admin_live/imports.ex:150
+#, elixir-autogen, elixir-format
+msgid "waiting"
+msgstr "wartet"
+
+#: lib/dogo_web/live/admin_live/imports.ex:153
+#, elixir-autogen, elixir-format
+msgid "will retry"
+msgstr "wird wiederholt"

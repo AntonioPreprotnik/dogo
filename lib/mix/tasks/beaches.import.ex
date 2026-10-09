@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Beaches.Import do
   """
   use Mix.Task
 
-  alias Dogo.Import.Jobs.ImportBeaches
+  alias Dogo.Import
 
   @requirements ["app.start"]
 
@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Beaches.Import do
       |> maybe_put_bbox(opts[:bbox])
       |> maybe_put("timeout", opts[:timeout])
 
-    case args |> ImportBeaches.new() |> Oban.insert() do
+    case Import.enqueue_beaches_import(args) do
       {:ok, job} ->
         Mix.shell().info("Uvoz je u redu (job ##{job.id}).")
 

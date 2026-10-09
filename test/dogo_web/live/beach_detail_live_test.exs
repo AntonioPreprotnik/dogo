@@ -46,6 +46,15 @@ defmodule DogoWeb.BeachDetailLiveTest do
       assert html =~ "generirano"
     end
 
+    test "status koji je unio admin je označen kao ručno unesen (E8-S1)", %{conn: conn} do
+      beach = beach_fixture(%{osm_id: "way/manual", dog_status_source: :manual})
+
+      {:ok, view, html} = live(conn, ~p"/beaches/#{beach.id}")
+
+      assert has_element?(view, "[data-role=dog-status-source][data-source=manual]")
+      assert html =~ "ručno uneseno"
+    end
+
     test "sadržaji se prikazuju i kad ih nema", %{conn: conn, beach: beach} do
       {:ok, view, _html} = live(conn, ~p"/beaches/#{beach.id}")
 

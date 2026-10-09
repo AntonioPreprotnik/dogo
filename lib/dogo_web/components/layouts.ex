@@ -62,6 +62,78 @@ defmodule DogoWeb.Layouts do
   end
 
   @doc """
+  Layout admin sučelja: navigacija, prijavljeni admin i odjava.
+
+  Odvojen od `app/1` jer javni dio nema prijave, a admin nema disclaimer ni
+  atribuciju (nije javna stranica).
+  """
+  attr :flash, :map, required: true
+  attr :current_scope, :map, required: true
+  attr :current_path, :string, default: "/admin/beaches"
+
+  slot :inner_block, required: true
+
+  def admin(assigns) do
+    assigns =
+      assign(assigns, :nav, [
+        {~p"/admin/beaches", gettext("Beaches"), "hero-map-pin"},
+        {~p"/admin/imports", gettext("Imports"), "hero-arrow-path"},
+        {~p"/admin/dashboard", gettext("Dashboard"), "hero-chart-bar"},
+        {~p"/admin/settings", gettext("Settings"), "hero-cog-6-tooth"}
+      ])
+
+    ~H"""
+    <header class="border-b border-base-300 bg-base-100">
+      <div class="mx-auto flex max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+        <div class="flex items-center gap-4">
+          <a href={~p"/"} class="flex items-center gap-2 text-lg font-semibold tracking-tight">
+            <span aria-hidden="true">🐕</span> Dogo
+          </a>
+          <span class="rounded bg-base-content px-1.5 py-0.5 text-xs font-medium uppercase text-base-100">
+            admin
+          </span>
+        </div>
+        <div class="flex items-center gap-3 text-sm">
+          <span class="hidden text-base-content/70 sm:inline" data-role="admin-email">
+            {@current_scope.admin.email}
+          </span>
+          <.link
+            href={~p"/admin/log-out"}
+            method="delete"
+            id="admin-log-out"
+            class="inline-flex items-center gap-1 rounded px-2 py-1 hover:bg-base-200"
+          >
+            <.icon name="hero-arrow-right-on-rectangle" class="size-4" /> {gettext("Log out")}
+          </.link>
+          <.language_picker current_path={@current_path} />
+        </div>
+      </div>
+      <nav class="mx-auto flex max-w-5xl gap-1 overflow-x-auto px-4 pb-2 sm:px-6">
+        <.link
+          :for={{path, label, icon} <- @nav}
+          navigate={path}
+          class={[
+            "inline-flex items-center gap-1.5 whitespace-nowrap rounded-md px-3 py-1.5 text-sm transition-colors",
+            String.starts_with?(@current_path, path) && "bg-base-200 font-medium",
+            !String.starts_with?(@current_path, path) && "text-base-content/70 hover:bg-base-200"
+          ]}
+        >
+          <.icon name={icon} class="size-4" /> {label}
+        </.link>
+      </nav>
+    </header>
+
+    <main class="px-4 py-8 sm:px-6">
+      <div class="mx-auto max-w-5xl space-y-6">
+        {render_slot(@inner_block)}
+      </div>
+    </main>
+
+    <.flash_group flash={@flash} />
+    """
+  end
+
+  @doc """
   Prebacivanje jezika.
 
   Obična forma, ne LiveView event: cookie se može postaviti samo u HTTP

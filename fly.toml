@@ -8,9 +8,10 @@
 #   fly postgres connect -a dogo-db -d dogo -c "CREATE EXTENSION IF NOT EXISTS postgis"
 #   fly secrets set SECRET_KEY_BASE=$(mix phx.gen.secret)
 #
-# Optional, LiveDashboard at /admin/dashboard (without both it returns 404):
+# Admin (beach editing, imports, LiveDashboard at /admin), after the first deploy.
+# Prints a temporary password, change it at /admin/settings:
 #
-#   fly secrets set DASHBOARD_USER=admin DASHBOARD_PASSWORD=$(openssl rand -base64 24)
+#   fly ssh console -C '/app/bin/dogo eval "Dogo.Release.create_admin(\"you@example.com\")"'
 app = "dogo"
 primary_region = "fra"
 kill_signal = "SIGTERM"

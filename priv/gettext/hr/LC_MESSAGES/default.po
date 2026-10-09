@@ -11,28 +11,28 @@ msgstr ""
 "Language: hr\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100 != 11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10||n%100>=20) ? 1 : 2);\n"
 
-#: lib/dogo_web/components/beach_components.ex:166
+#: lib/dogo_web/components/beach_components.ex:165
 #, elixir-autogen, elixir-format
 msgid "%{count} h"
 msgstr "%{count} h"
 
-#: lib/dogo_web/components/beach_components.ex:180
+#: lib/dogo_web/components/beach_components.ex:179
 #: lib/dogo_web/live/beach_map_live.ex:528
 #, elixir-autogen, elixir-format
 msgid "%{count} km"
 msgstr "%{count} km"
 
-#: lib/dogo_web/components/beach_components.ex:176
+#: lib/dogo_web/components/beach_components.ex:175
 #, elixir-autogen, elixir-format
 msgid "%{count} m"
 msgstr "%{count} m"
 
-#: lib/dogo_web/components/beach_components.ex:158
+#: lib/dogo_web/components/beach_components.ex:157
 #, elixir-autogen, elixir-format
 msgid "%{count} min"
 msgstr "%{count} min"
 
-#: lib/dogo_web/components/beach_components.ex:167
+#: lib/dogo_web/components/beach_components.ex:166
 #, elixir-autogen, elixir-format
 msgid "%{hours} h %{minutes} min"
 msgstr "%{hours} h %{minutes} min"
@@ -42,14 +42,15 @@ msgstr "%{hours} h %{minutes} min"
 msgid "Actions"
 msgstr "Radnje"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:76
 #: lib/dogo_web/live/beach_detail_live.ex:80
 #: lib/dogo_web/live/beach_map_live.ex:504
 #, elixir-autogen, elixir-format
 msgid "Amenities"
 msgstr "Sadržaji"
 
-#: lib/dogo_web/components/layouts.ex:154
-#: lib/dogo_web/components/layouts.ex:166
+#: lib/dogo_web/components/layouts.ex:226
+#: lib/dogo_web/components/layouts.ex:238
 #, elixir-autogen, elixir-format
 msgid "Attempting to reconnect"
 msgstr "Pokušavam se ponovno spojiti"
@@ -64,7 +65,7 @@ msgstr "Natrag na kartu"
 msgid "Beach"
 msgstr "Plaža"
 
-#: lib/dogo_web/components/layouts.ex:113
+#: lib/dogo_web/components/layouts.ex:185
 #, elixir-autogen, elixir-format
 msgid "Beach locations:"
 msgstr "Lokacije plaža:"
@@ -171,7 +172,7 @@ msgstr "Bez trajekta"
 msgid "No place with that name in Croatia."
 msgstr "Nema mjesta s tim imenom u Hrvatskoj."
 
-#: lib/dogo_web/components/layouts.ex:118
+#: lib/dogo_web/components/layouts.ex:190
 #, elixir-autogen, elixir-format
 msgid "ODbL licence."
 msgstr "licenca ODbL."
@@ -226,7 +227,7 @@ msgstr "Tražim…"
 msgid "Shade"
 msgstr "Hlad"
 
-#: lib/dogo_web/components/layouts.ex:161
+#: lib/dogo_web/components/layouts.ex:233
 #, elixir-autogen, elixir-format
 msgid "Something went wrong!"
 msgstr "Nešto je pošlo po zlu!"
@@ -247,6 +248,7 @@ msgstr "Zračna udaljenost"
 msgid "Straight-line distance; driving time unavailable"
 msgstr "Zračna udaljenost; vrijeme vožnje nije dostupno"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:70
 #: lib/dogo_web/live/beach_detail_live.ex:59
 #: lib/dogo_web/live/beach_map_live.ex:494
 #, elixir-autogen, elixir-format
@@ -258,7 +260,7 @@ msgstr "Podloga"
 msgid "The background map is not loading. The beach list and distances still work."
 msgstr "Pozadinska karta se ne učitava. Popis plaža i udaljenosti i dalje rade."
 
-#: lib/dogo_web/components/layouts.ex:121
+#: lib/dogo_web/components/layouts.ex:193
 #, elixir-autogen, elixir-format
 msgid "The data is for demonstration. Dog-related attributes are partly generated and do not reflect real rules. Check local regulations before you travel."
 msgstr "Podaci su demonstracijski. Atributi vezani uz pse djelomično su generirani i ne odražavaju stvarna pravila. Prije puta provjeri lokalne propise."
@@ -268,12 +270,12 @@ msgstr "Podaci su demonstracijski. Atributi vezani uz pse djelomično su generir
 msgid "This browser does not offer location. Type a place or move the map."
 msgstr "Ovaj preglednik ne nudi lokaciju. Upiši mjesto ili pomakni kartu."
 
-#: lib/dogo_web/components/beach_components.ex:94
+#: lib/dogo_web/components/beach_components.ex:106
 #, elixir-autogen, elixir-format
 msgid "This value comes from OpenStreetMap."
 msgstr "Podatak dolazi iz OpenStreetMapa."
 
-#: lib/dogo_web/components/beach_components.ex:95
+#: lib/dogo_web/components/beach_components.ex:112
 #, elixir-autogen, elixir-format
 msgid "This value was generated for the demo."
 msgstr "Podatak je generiran za potrebe demonstracije."
@@ -289,6 +291,8 @@ msgstr "Upiši mjesto, npr. Split"
 msgid "Unknown"
 msgstr "Nepoznato"
 
+#: lib/dogo_web/live/admin_live/beach_form.ex:113
+#: lib/dogo_web/live/admin_live/beach_index.ex:41
 #: lib/dogo_web/live/beach_detail_live.ex:46
 #: lib/dogo_web/live/beach_map_live.ex:709
 #: lib/dogo_web/offline_snapshot.ex:55
@@ -306,7 +310,7 @@ msgstr "Vidljivo: %{count}"
 msgid "Visible: %{count} — grouped, zoom in for individual beaches"
 msgstr "Vidljivo: %{count} — grupirano, zumiraj za pojedine plaže"
 
-#: lib/dogo_web/components/layouts.ex:149
+#: lib/dogo_web/components/layouts.ex:221
 #, elixir-autogen, elixir-format
 msgid "We can't find the internet"
 msgstr "Ne mogu pronaći internet"
@@ -336,12 +340,12 @@ msgstr "preko mora"
 msgid "close"
 msgstr "zatvori"
 
-#: lib/dogo_web/components/beach_components.ex:91
+#: lib/dogo_web/components/beach_components.ex:106
 #, elixir-autogen, elixir-format
 msgid "from OSM"
 msgstr "iz OSM-a"
 
-#: lib/dogo_web/components/beach_components.ex:91
+#: lib/dogo_web/components/beach_components.ex:112
 #, elixir-autogen, elixir-format
 msgid "generated"
 msgstr "generirano"
@@ -362,17 +366,17 @@ msgstr "Dogo — plaže za pse"
 msgid "Find the nearest beaches where your dog is welcome."
 msgstr "Pronađi najbliže plaže na kojima je tvoj pas dobrodošao."
 
-#: lib/dogo_web/components/layouts.ex:205
+#: lib/dogo_web/components/layouts.ex:277
 #, elixir-autogen, elixir-format
 msgid "Dark theme"
 msgstr "Tamna tema"
 
-#: lib/dogo_web/components/layouts.ex:187
+#: lib/dogo_web/components/layouts.ex:259
 #, elixir-autogen, elixir-format
 msgid "Follow system theme"
 msgstr "Prati temu sustava"
 
-#: lib/dogo_web/components/layouts.ex:196
+#: lib/dogo_web/components/layouts.ex:268
 #, elixir-autogen, elixir-format
 msgid "Light theme"
 msgstr "Svijetla tema"
@@ -416,3 +420,378 @@ msgstr "Nema veze. Ovo su zadnji rezultati, spremljeni u %{time}."
 #, elixir-autogen, elixir-format
 msgid "Offline"
 msgstr "Izvan mreže"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:19
+#, elixir-autogen, elixir-format
+msgid "%{count} beach"
+msgid_plural "%{count} beaches"
+msgstr[0] "%{count} plaža"
+msgstr[1] "%{count} plaže"
+msgstr[2] "%{count} plaža"
+
+#: lib/dogo_web/live/admin_live/login.ex:22
+#, elixir-autogen, elixir-format
+msgid "Accounts are created by the operator; there is no sign-up."
+msgstr "Račune stvara operater; registracije nema."
+
+#: lib/dogo_web/live/admin_live/login.ex:17
+#: lib/dogo_web/live/admin_live/login.ex:73
+#, elixir-autogen, elixir-format
+msgid "Administrator log in"
+msgstr "Prijava administratora"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:21
+#, elixir-autogen, elixir-format
+msgid "All beaches"
+msgstr "Sve plaže"
+
+#: lib/dogo_web/live/admin_live/imports.ex:84
+#, elixir-autogen, elixir-format
+msgid "Attempts"
+msgstr "Pokušaji"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:131
+#, elixir-autogen, elixir-format
+msgid "Beach created."
+msgstr "Plaža je dodana."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:129
+#, elixir-autogen, elixir-format
+msgid "Beach deleted."
+msgstr "Plaža je obrisana."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:137
+#, elixir-autogen, elixir-format
+msgid "Beach saved."
+msgstr "Plaža je spremljena."
+
+#: lib/dogo_web/components/layouts.ex:79
+#: lib/dogo_web/live/admin_live/beach_index.ex:17
+#: lib/dogo_web/live/admin_live/beach_index.ex:107
+#: lib/dogo_web/live/admin_live/imports.ex:31
+#: lib/dogo_web/live/admin_live/imports.ex:146
+#, elixir-autogen, elixir-format
+msgid "Beaches"
+msgstr "Plaže"
+
+#: lib/dogo_web/live/admin_live/settings.ex:22
+#, elixir-autogen, elixir-format
+msgid "Change the password for %{email}."
+msgstr "Promjena lozinke za %{email}."
+
+#: lib/dogo_web/live/admin_live/settings.ex:51
+#, elixir-autogen, elixir-format
+msgid "Confirm new password"
+msgstr "Ponovi novu lozinku"
+
+#: lib/dogo_web/components/layouts.ex:81
+#, elixir-autogen, elixir-format
+msgid "Dashboard"
+msgstr "Nadzorna ploča"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:70
+#, elixir-autogen, elixir-format
+msgid "Delete"
+msgstr "Obriši"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:164
+#, elixir-autogen, elixir-format
+msgid "Delete this beach?"
+msgstr "Obrisati ovu plažu?"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:167
+#, elixir-autogen, elixir-format
+msgid "Delete this beach? It comes from OpenStreetMap and will return with the next import."
+msgstr "Obrisati ovu plažu? Dolazi iz OpenStreetMapa i vratit će se pri sljedećem uvozu."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:64
+#: lib/dogo_web/live/admin_live/beach_index.ex:47
+#, elixir-autogen, elixir-format
+msgid "Dogs"
+msgstr "Psi"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:60
+#, elixir-autogen, elixir-format
+msgid "Edit"
+msgstr "Uredi"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:53
+#, elixir-autogen, elixir-format
+msgid "Edited"
+msgstr "Ispravljeno"
+
+#: lib/dogo_web/live/admin_live/login.ex:39
+#, elixir-autogen, elixir-format
+msgid "Email"
+msgstr "Email"
+
+#: lib/dogo_web/live/admin_live/imports.ex:33
+#, elixir-autogen, elixir-format
+msgid "Fetches beaches from OpenStreetMap (Overpass)."
+msgstr "Dohvaća plaže iz OpenStreetMapa (Overpass)."
+
+#: lib/dogo_web/live/admin_live/imports.ex:48
+#, elixir-autogen, elixir-format
+msgid "Fetches island polygons and assigns beaches to islands. Takes longer."
+msgstr "Dohvaća poligone otoka i pridružuje im plaže. Traje dulje."
+
+#: lib/dogo_web/live/admin_live/imports.ex:81
+#, elixir-autogen, elixir-format
+msgid "Finished"
+msgstr "Završeno"
+
+#: lib/dogo_web/live/admin_live/imports.ex:70
+#, elixir-autogen, elixir-format
+msgid "Import"
+msgstr "Uvoz"
+
+#: lib/dogo_web/live/admin_live/imports.ex:109
+#, elixir-autogen, elixir-format
+msgid "Import queued."
+msgstr "Uvoz je u redu."
+
+#: lib/dogo_web/components/layouts.ex:80
+#: lib/dogo_web/live/admin_live/imports.ex:23
+#: lib/dogo_web/live/admin_live/imports.ex:96
+#, elixir-autogen, elixir-format
+msgid "Imports"
+msgstr "Uvozi"
+
+#: lib/dogo_web/live/admin_live/imports.ex:25
+#, elixir-autogen, elixir-format
+msgid "Imports are idempotent. Beaches edited by hand are left unchanged."
+msgstr "Uvoz je idempotentan. Ručno ispravljene plaže ostaju nepromijenjene."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:59
+#, elixir-autogen, elixir-format
+msgid "Invalid email or password."
+msgstr "Neispravan email ili lozinka."
+
+#: lib/dogo_web/live/admin_live/imports.ex:46
+#: lib/dogo_web/live/admin_live/imports.ex:147
+#, elixir-autogen, elixir-format
+msgid "Islands"
+msgstr "Otoci"
+
+#: lib/dogo_web/live/admin_live/login.ex:53
+#, elixir-autogen, elixir-format
+msgid "Keep me logged in"
+msgstr "Zapamti prijavu"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:49
+#, elixir-autogen, elixir-format
+msgid "Latitude"
+msgstr "Geografska širina"
+
+#: lib/dogo_web/live/admin_live/login.ex:55
+#, elixir-autogen, elixir-format
+msgid "Log in"
+msgstr "Prijava"
+
+#: lib/dogo_web/admin_auth.ex:218
+#: lib/dogo_web/controllers/admin_session_controller.ex:37
+#, elixir-autogen, elixir-format
+msgid "Log in again to access this page."
+msgstr "Za ovu stranicu ponovno se prijavi."
+
+#: lib/dogo_web/live/admin_live/login.ex:20
+#, elixir-autogen, elixir-format
+msgid "Log in again to change sensitive settings."
+msgstr "Za promjenu osjetljivih postavki ponovno se prijavi."
+
+#: lib/dogo_web/components/layouts.ex:106
+#, elixir-autogen, elixir-format
+msgid "Log out"
+msgstr "Odjava"
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:44
+#, elixir-autogen, elixir-format
+msgid "Logged out."
+msgstr "Odjava je uspjela."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:50
+#, elixir-autogen, elixir-format
+msgid "Longitude"
+msgstr "Geografska dužina"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:46
+#: lib/dogo_web/live/admin_live/beach_index.ex:44
+#, elixir-autogen, elixir-format
+msgid "Municipality"
+msgstr "Općina"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:45
+#: lib/dogo_web/live/admin_live/beach_index.ex:40
+#, elixir-autogen, elixir-format
+msgid "Name"
+msgstr "Ime"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:32
+#, elixir-autogen, elixir-format
+msgid "Name, municipality or OSM ID"
+msgstr "Ime, općina ili OSM ID"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:104
+#: lib/dogo_web/live/admin_live/beach_index.ex:23
+#, elixir-autogen, elixir-format
+msgid "New beach"
+msgstr "Nova plaža"
+
+#: lib/dogo_web/live/admin_live/settings.ex:43
+#, elixir-autogen, elixir-format
+msgid "New password"
+msgstr "Nova lozinka"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:98
+#, elixir-autogen, elixir-format
+msgid "Next"
+msgstr "Sljedeća"
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:77
+#, elixir-autogen, elixir-format
+msgid "No beaches match the search."
+msgstr "Nijedna plaža ne odgovara pretrazi."
+
+#: lib/dogo_web/live/admin_live/imports.ex:65
+#, elixir-autogen, elixir-format
+msgid "No imports yet."
+msgstr "Još nema uvoza."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:90
+#, elixir-autogen, elixir-format
+msgid "Page %{page} of %{total}"
+msgstr "Stranica %{page} od %{total}"
+
+#: lib/dogo_web/live/admin_live/login.ex:48
+#, elixir-autogen, elixir-format
+msgid "Password"
+msgstr "Lozinka"
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:28
+#, elixir-autogen, elixir-format
+msgid "Password updated."
+msgstr "Lozinka je promijenjena."
+
+#: lib/dogo_web/live/admin_live/beach_index.ex:87
+#, elixir-autogen, elixir-format
+msgid "Previous"
+msgstr "Prethodna"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:29
+#, elixir-autogen, elixir-format
+msgid "Public page"
+msgstr "Javna stranica"
+
+#: lib/dogo_web/live/admin_live/imports.ex:80
+#, elixir-autogen, elixir-format
+msgid "Queued"
+msgstr "U redu od"
+
+#: lib/dogo_web/live/admin_live/imports.ex:63
+#, elixir-autogen, elixir-format
+msgid "Recent jobs"
+msgstr "Zadnji uvozi"
+
+#: lib/dogo_web/live/admin_live/imports.ex:42
+#: lib/dogo_web/live/admin_live/imports.ex:57
+#, elixir-autogen, elixir-format
+msgid "Run import"
+msgstr "Pokreni uvoz"
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:88
+#, elixir-autogen, elixir-format
+msgid "Save"
+msgstr "Spremi"
+
+#: lib/dogo_web/live/admin_live/settings.ex:56
+#, elixir-autogen, elixir-format
+msgid "Save password"
+msgstr "Spremi lozinku"
+
+#: lib/dogo_web/components/layouts.ex:82
+#: lib/dogo_web/live/admin_live/settings.ex:21
+#: lib/dogo_web/live/admin_live/settings.ex:71
+#, elixir-autogen, elixir-format
+msgid "Settings"
+msgstr "Postavke"
+
+#: lib/dogo_web/live/admin_live/imports.ex:71
+#, elixir-autogen, elixir-format
+msgid "State"
+msgstr "Stanje"
+
+#: lib/dogo_web/live/admin_live/imports.ex:112
+#, elixir-autogen, elixir-format
+msgid "The import could not be queued."
+msgstr "Uvoz nije stavljen u red."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:32
+#, elixir-autogen, elixir-format
+msgid "The password was not changed."
+msgstr "Lozinka nije promijenjena."
+
+#: lib/dogo_web/live/admin_live/beach_form.ex:39
+#, elixir-autogen, elixir-format
+msgid "This beach comes from the import. After you save, future imports will no longer change it."
+msgstr "Ova plaža dolazi iz uvoza. Nakon spremanja budući uvozi je više neće mijenjati."
+
+#: lib/dogo_web/live/admin_live/imports.ex:106
+#, elixir-autogen, elixir-format
+msgid "This import is already queued or running."
+msgstr "Ovaj uvoz je već u redu ili u tijeku."
+
+#: lib/dogo_web/components/beach_components.ex:109
+#, elixir-autogen, elixir-format
+msgid "This value was entered by an administrator."
+msgstr "Ovu vrijednost je unio administrator."
+
+#: lib/dogo_web/controllers/admin_session_controller.ex:14
+#, elixir-autogen, elixir-format
+msgid "Welcome back!"
+msgstr "Prijava je uspjela."
+
+#: lib/dogo_web/admin_auth.ex:203
+#: lib/dogo_web/admin_auth.ex:254
+#, elixir-autogen, elixir-format
+msgid "You must log in to access this page."
+msgstr "Za ovu stranicu moraš se prijaviti."
+
+#: lib/dogo_web/components/beach_components.ex:109
+#, elixir-autogen, elixir-format
+msgid "edited"
+msgstr "ručno uneseno"
+
+#: lib/dogo_web/live/admin_live/imports.ex:156
+#, elixir-autogen, elixir-format
+msgid "cancelled"
+msgstr "otkazano"
+
+#: lib/dogo_web/live/admin_live/imports.ex:154
+#, elixir-autogen, elixir-format
+msgid "completed"
+msgstr "završeno"
+
+#: lib/dogo_web/live/admin_live/imports.ex:155
+#, elixir-autogen, elixir-format
+msgid "failed"
+msgstr "neuspjelo"
+
+#: lib/dogo_web/live/admin_live/imports.ex:152
+#, elixir-autogen, elixir-format
+msgid "running"
+msgstr "u tijeku"
+
+#: lib/dogo_web/live/admin_live/imports.ex:151
+#, elixir-autogen, elixir-format
+msgid "scheduled"
+msgstr "zakazano"
+
+#: lib/dogo_web/live/admin_live/imports.ex:150
+#, elixir-autogen, elixir-format
+msgid "waiting"
+msgstr "čeka"
+
+#: lib/dogo_web/live/admin_live/imports.ex:153
+#, elixir-autogen, elixir-format
+msgid "will retry"
+msgstr "ponovit će se"

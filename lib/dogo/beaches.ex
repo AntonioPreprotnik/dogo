@@ -10,6 +10,8 @@ defmodule Dogo.Beaches do
 
   import Ecto.Query
 
+  alias Dogo.Accounts.Admin
+  alias Dogo.Accounts.Scope
   alias Dogo.Beaches.Beach
   alias Dogo.Geo.Island
   alias Dogo.Geo.Islands
@@ -74,6 +76,109 @@ defmodule Dogo.Beaches do
 
   @doc "Broj plaža u bazi."
   def count_beaches, do: Repo.aggregate(Beach, :count)
+
+  ## Admin
+  #
+  # Funkcije za admin sučelje primaju `Scope` s prijavljenim adminom kao prvi
+  # argument. Bez njega poziv pada na `FunctionClauseError`, pa autorizacija ne
+  # ovisi samo o tome je li ruta u routeru na pravom mjestu.
+
+  @admin_per_page 25
+
+  @doc """
+  Stranica plaža za admin popis, po imenu.
+
+  Opcije: `:query` (dio imena ili općine, ili točan `osm_id`) i `:page`
+  (od 1). Vraća `%{entries: [...], page: n, total_pages: n, total: n}`.
+  """
+  def list_beaches_for_admin(%Scope{admin: %Admin{}}, opts \\ []) do
+    query = admin_search(Beach, Keyword.get(opts, :query))
+    total = Repo.aggregate(query, :count)
+    total_pages = max(ceil(total / @admin_per_page), 1)
+    page = opts |> Keyword.get(:page, 1) |> max(1) |> min(total_pages)
+
+    entries =
+      Repo.all(
+        from b in query,
+          order_by: [asc_nulls_last: b.name, asc: b.id],
+          limit: @admin_per_page,
+          offset: ^((page - 1) * @admin_per_page)
+      )
+
+    %{entries: entries, page: page, total_pages: total_pages, total: total}
+  end
+
+  defp admin_search(query, term) when is_binary(term) do
+    case String.trim(term) do
+      "" ->
+        query
+
+      term ->
+        pattern = "%" <> escape_like(term) <> "%"
+
+        where(
+          query,
+          [b],
+          ilike(b.name, ^pattern) or ilike(b.municipality, ^pattern) or b.osm_id == ^term
+        )
+    end
+  end
+
+  defp admin_search(query, _term), do: query
+
+  defp escape_like(term), do: String.replace(term, ["\\", "%", "_"], &("\\" <> &1))
+
+  @doc "Changeset za admin formu, s koordinatama popunjenima iz `geom`."
+  def change_beach_as_admin(%Beach{} = beach, attrs \\ %{}) do
+    Beach.admin_changeset(beach, attrs)
+  end
+
+  @doc """
+  Ručno dodaje plažu.
+
+  Dobiva `osm_id` oblika `manual/…`, koji se ne može sudariti s OSM-om, pa je
+  uvoz nikad ne dira. Izvor statusa je `:manual`.
+  """
+  def create_beach_as_admin(%Scope{admin: %Admin{}}, attrs) do
+    osm_id = "manual/" <> Base.url_encode64(:crypto.strong_rand_bytes(9))
+
+    %Beach{osm_id: osm_id, dog_status_source: :manual}
+    |> Beach.admin_changeset(attrs)
+    |> assign_island()
+    |> Repo.insert()
+  end
+
+  @doc """
+  Ručno ispravlja plažu. Nakon toga je uvoz više ne mijenja (ADR 0011).
+  """
+  def update_beach_as_admin(%Scope{admin: %Admin{}}, %Beach{} = beach, attrs) do
+    beach
+    |> Beach.admin_changeset(attrs)
+    |> assign_island()
+    |> Repo.update()
+  end
+
+  @doc """
+  Briše plažu.
+
+  Plaža iz OSM-a vratit će se pri sljedećem uvozu, jer je OSM izvor istine
+  za postojanje plaže. Trajno se miče ispravkom u OSM-u.
+  """
+  def delete_beach(%Scope{admin: %Admin{}}, %Beach{} = beach), do: Repo.delete(beach)
+
+  # Pomaknuta plaža može prijeći s otoka na kopno ili obratno, a o otoku ovisi
+  # upozorenje "preko mora". Uvoz otoka to radi za sve plaže odjednom, ovdje
+  # samo za jednu.
+  defp assign_island(changeset) do
+    case Ecto.Changeset.fetch_change(changeset, :geom) do
+      {:ok, point} when changeset.valid? ->
+        island = Islands.at(point)
+        Ecto.Changeset.put_change(changeset, :island_id, island && island.id)
+
+      _ ->
+        changeset
+    end
+  end
 
   @doc """
   Označava svakoj plaži je li preko mora u odnosu na zadano polazište.

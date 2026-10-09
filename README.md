@@ -104,9 +104,15 @@ behavioura i u testovima nikad ne idu na mrežu.
 
 ## Produkcija
 
-Deploy na Fly.io, upute u [`fly.toml`](fly.toml). LiveDashboard je na
-`/admin/dashboard`, iza basic autha (`DASHBOARD_USER`, `DASHBOARD_PASSWORD`);
-bez tih varijabli ruta vraća 404. Uz standardne metrike Phoenixa, Ecta i VM-a
+Deploy na Fly.io, upute u [`fly.toml`](fly.toml).
+
+**Admin** je na `/admin`: ručne ispravke plaža, ponovno pokretanje uvoza i
+LiveDashboard. Registracije nema; admin se stvara iz konzole i dobiva
+privremenu lozinku (`mix admin.create ana@example.com`, u produkciji
+`Dogo.Release.create_admin/1`). Ručno ispravljenu plažu uvoz više ne mijenja
+(ADR 0010, 0011).
+
+LiveDashboard (`/admin/dashboard`) uz standardne metrike Phoenixa, Ecta i VM-a
 prikazuje trajanje prostornih upita, pozive Overpassu, Nominatimu i OSRM-u po
 ishodu te trajanje uvoza — bez koordinata u metapodacima.
 
@@ -114,6 +120,7 @@ ishodu te trajanje uvoza — bez koordinata u metapodacima.
 
 - [`docs/PLAN.md`](docs/PLAN.md) — vizija, opseg, epici i storyji
 - [`docs/adr/`](docs/adr/) — arhitektonske odluke
+- [`docs/retro.md`](docs/retro.md) — retrospektive sprintova
 - [`docs/performance.md`](docs/performance.md) — mjerenja indeksa i Lighthouse
 - [`CHANGELOG.md`](CHANGELOG.md) — što je u kojoj verziji
 - [`AGENTS.md`](AGENTS.md) / [`CLAUDE.md`](CLAUDE.md) — konvencije za rad s AI alatima
