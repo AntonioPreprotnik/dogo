@@ -1,46 +1,53 @@
 # fly.toml — Dogo
 #
-# Create the app and its PostGIS-enabled database once with:
+# Jednokratno postavljanje (app ime je dodijelio `fly launch`):
 #
 #   fly launch --no-deploy --copy-config
-#   fly postgres create --name dogo-db --region fra
-#   fly postgres attach dogo-db
-#   fly postgres connect -a dogo-db -d dogo -c "CREATE EXTENSION IF NOT EXISTS postgis"
+#   fly mpg create --name dogo-db --region fra --enable-postgis-support
+#   fly mpg attach <CLUSTER ID> -a dogo-autumn-pine-4604
 #   fly secrets set SECRET_KEY_BASE=$(mix phx.gen.secret)
 #
-# Admin (beach editing, imports, LiveDashboard at /admin), after the first deploy.
-# Prints a temporary password, change it at /admin/settings:
+# PostGIS se kod Managed Postgresa uključuje samo pri stvaranju clustera
+# (--enable-postgis-support); prva migracija radi CREATE EXTENSION postgis.
+#
+# Admin (uređivanje plaža, uvozi, LiveDashboard na /admin), nakon prvog
+# deploya. Ispisuje privremenu lozinku, promijeni je na /admin/settings:
 #
 #   fly ssh console -C '/app/bin/dogo eval "Dogo.Release.create_admin(\"you@example.com\")"'
-app = "dogo"
-primary_region = "fra"
-kill_signal = "SIGTERM"
+
+app = 'dogo-autumn-pine-4604'
+primary_region = 'fra'
+kill_signal = 'SIGTERM'
 
 [build]
-
 [deploy]
-  release_command = "/app/bin/migrate"
+  release_command = '/app/bin/migrate'
 
 [env]
-  PHX_HOST = "dogo.fly.dev"
-  PORT = "8080"
+  PHX_HOST = 'dogo-autumn-pine-4604.fly.dev'
+  PORT = '8080'
 
 [http_service]
   internal_port = 8080
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
-  processes = ["app"]
+  processes = ['app']
+
+  [http_service.concurrency]
+    type = 'connections'
+    hard_limit = 1000
+    soft_limit = 1000
 
   [[http_service.checks]]
-    interval = "30s"
-    timeout = "5s"
-    grace_period = "10s"
-    method = "GET"
-    path = "/health"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '10s'
+    method = 'GET'
+    path = '/health'
 
 [[vm]]
-  cpu_kind = "shared"
+  cpu_kind = 'shared'
   cpus = 1
   memory_mb = 512
