@@ -13,8 +13,10 @@ config :dogo, DogoWeb.Endpoint, cache_static_manifest: "priv/static/cache_manife
 config :dogo, DogoWeb.Endpoint,
   force_ssl: [
     rewrite_on: [:x_forwarded_proto],
+    # Fly gada /health interno preko HTTP-a, bez x-forwarded-proto; preusmjeren
+    # na HTTPS, check nikad ne dobije 200 i Fly ne salje promet masini.
     exclude: [
-      # paths: ["/health"],
+      paths: ["/health"],
       hosts: ["localhost", "127.0.0.1"]
     ]
   ]
