@@ -1,6 +1,6 @@
 # Dogo 🐕🏖️
 
-[![CI](https://github.com/CHANGE-ME/dogo/actions/workflows/ci.yml/badge.svg)](https://github.com/CHANGE-ME/dogo/actions/workflows/ci.yml)
+[![CI](https://github.com/AntonioPreprotnik/dogo/actions/workflows/ci.yml/badge.svg)](https://github.com/AntonioPreprotnik/dogo/actions/workflows/ci.yml)
 
 **Dogo vlasniku psa na hrvatskom Jadranu pokazuje najbliže plaže na kojima smije
 biti sa psom — s pravim vremenom vožnje i upozorenjem kad je plaža "preko mora".**
